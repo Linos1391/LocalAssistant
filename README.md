@@ -21,3 +21,44 @@
 This AI is designed to be used in CLI.
 
 </div>
+
+## Table of contents
+
+1. [Features](#features)
+
+2. [Installing](#installing)
+
+3. [Preparing](#preparing)
+
+4. [Running](#running)
+
+5. [License](#license)
+
+6. [Disclaimer](#disclaimer)
+
+## Features
+
+## Installing
+
+1. Clone the repository.
+
+```
+git clone https://github.com/Linos1391/LocalAssistant.git
+cd LocalAssistant
+```
+
+2. Install the required python packages.
+
+```
+pip install -r requirements.txt
+```
+
+## Preparing
+
+Before doing anything, we should download a model first.
+
+```
+
+```
+
+

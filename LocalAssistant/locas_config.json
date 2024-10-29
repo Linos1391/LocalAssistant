@@ -1,0 +1,11 @@
+{
+    "hf_token": "",
+    "load_in_bits": "8",
+    "models": {
+        "Text_Generation": "Qwen",
+        "Tokenizer": "Qwen"
+    },
+    "users": {
+        "current": "",
+    }
+}

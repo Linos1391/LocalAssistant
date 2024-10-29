@@ -1,0 +1,1 @@
+python ./LocalAssistant/parser.py %*

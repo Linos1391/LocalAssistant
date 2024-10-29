@@ -1,2 +1,3 @@
-# <-- Add conda or docker here
+#!/bin/bash
+
 python ./LocalAssistant/parser.py $@

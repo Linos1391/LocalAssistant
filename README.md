@@ -80,8 +80,6 @@ Before doing anything, we should download a model first.
 locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 ```
 
-<br>
-
 ### OS: Window
 
 We have in `./LocalAssistant/` directory.
@@ -133,8 +131,6 @@ locas.cmd ...
 ```
 
 Use `locas.cmd -h` for more.
-
-<br>
 
 ### OS: Window
 

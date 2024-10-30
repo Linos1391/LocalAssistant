@@ -6,7 +6,7 @@ from huggingface_hub import login, logout
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, TextIteratorStreamer
 import torch
 
-from utils import LocalAssistantException, LocalAssistantConfig, MODEL_PATH
+from .utils import LocalAssistantException, LocalAssistantConfig, MODEL_PATH
 
 CONFIG = LocalAssistantConfig()
 

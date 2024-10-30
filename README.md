@@ -81,7 +81,7 @@ chmod a+x locas.cmd
 
 Next, we have to add this path to envirment variable. (with 3 steps)
 
-1. Edit the .bashrc file. And login.
+1. Edit the .bash_profile file.
 
 ```
 nano ~/.bash_profile
@@ -94,7 +94,7 @@ export LocalAssistant="<your_path>"
 export PATH=$PATH:$LocalAssistant
 ```
 
-3. After done, save the changed
+3. After done, save the changed.
 
 ```
 source ~/.bash_profile

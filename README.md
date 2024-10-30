@@ -55,9 +55,11 @@ pip install -r requirements.txt
 
 <br>
 
-## Preparing
+## Preparing 
 
-### OS: Unix
+### [UNIX](#unix) | [Window](#window)
+
+### Unix
 
 **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
 
@@ -65,14 +67,13 @@ We are inside `./LocalAssistant/` directory.
 
 ```
 echo $PWD
-echo $PATH
 ```
 
-The first path is your path to locas.cmd file (called as `<your_path>`). The second one is your PATH variable (called as `<PATH>`). Remember to left it somewhere so you will not forget.
+The path is your path to locas.cmd file (called as `<your_path>`). Remember to left it somewhere so you will not forget.
 
 <br>
 
- Change permission so we can access later:
+Change permission so we can access later:
 
 ```
 chmod a+x locas.cmd
@@ -85,20 +86,20 @@ Next, we have to add this path to envirment variable. (with 3 steps)
 1. Edit the .bashrc file. And login.
 
 ```
-sudo nano ~/.bashrc
+nano ~/.bash_profile
 ```
 
 2. At the end of the file, export the path. (Don't forget the `"`)
 
 ```
 export LocalAssistant="<your_path>"
-export PATH="<PATH>:<your_path>"
+export PATH=$PATH:$LocalAssistant
 ```
 
 3. After done, save the changed
 
 ```
-source ~/.bashrc
+source ~/.bash_profile
 ```
 
 <br>
@@ -109,7 +110,7 @@ Before doing anything, we should download a model first.
 locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 ```
 
-### OS: Window
+### Window
 
 We are inside `./LocalAssistant/` directory.
 
@@ -165,7 +166,7 @@ locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 
 ## Running
 
-### OS: Unix
+### Unix
 
 ```
 locas.cmd ...
@@ -173,7 +174,7 @@ locas.cmd ...
 
 Use `locas.cmd -h` for more.
 
-### OS: Window
+### Window
 
 ```
 locas ...

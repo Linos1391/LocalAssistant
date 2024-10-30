@@ -74,13 +74,39 @@ Before doing anything, we should download a model first.
 locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 ```
 
-#### OS: Window
+### OS: Window
 
-Set that path:
+We have in `./LocalAssistant/` directory.
 
 ```
-setx /m PATH "%PATH%;%cd%
+echo %cd%
 ```
+
+Copy the path below as its your path to locas.cmd file. Remember to left it somewhere so you will not forget.
+
+<br>
+
+Next, we have to add this path to envirment variable. (with 4 steps)
+
+1. Press `Win` and search for `environment` until `edit the system environment variables` shown up. Open it.
+
+![win_pre_1](asset/win_pre_1.png)
+
+2. Click the `Environment Variables` button.
+
+![win_pre_2](asset/win_pre_2.png)
+
+3. Press on `Path` and click `Edit` button. 
+
+![win_pre_3](asset/win_pre_3.png)
+
+4. Click `New` and paste your path in.
+
+![win_pre_4](asset/win_pre_4.png)
+
+**Notice:** When done, click `OK` until out. Otherwise the path might not saved. Try have a look again for sure.
+
+<br>
 
 Before doing anything, we should download a model first.
 

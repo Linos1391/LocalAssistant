@@ -26,44 +26,15 @@ This AI is designed to be used in CLI.
 
 ## Table of contents
 
-1. [Features](#features)
+1. [Installing](#installing)
 
-2. [Installing](#installing)
+2. [Preparing](#preparing)
 
-3. [Preparing](#preparing)
+3. [Running](#running)
 
-4. [Running](#running)
+4. [License](#license)
 
-5. [License](#license)
-
-6. [Disclaimer](#disclaimer)
-
-<br>
-
-## Features
-
-```
->> locas -h
-
-usage: locas [-h] [-v] [-c] [-V] COMMAND ...
-
-LocalAssistant (locas) is an AI designed to be used in CLI.
-
-options:
-  -h, --help     show this help message and exit
-  -v, --verbose  show debug messages
-  -c, --clean    delete all .cache directory (RECOMMEND USING WHEN DONE)
-  -V, --version  show program's version number and exit
-
-commands:
-  built-in commands (type 'locas COMMAND -h' for better description)
-
-  COMMAND
-    download     Download models from Hugging Face
-    config       Configurate LocalAssistant.
-    user         Config user.
-    chat         Chat with models for limited lines. (no history saved)
-```
+5. [Disclaimer](#disclaimer)
 
 <br>
 
@@ -185,4 +156,4 @@ Use `locas -h` for more.
 
 ## Disclaimer
 
-This AI was designed to communicating with Hugging Face models in CLI.
+This AI was designed to communicating with Hugging Face models in CLI. Please do not use this AI for any unethical reasons. Any damages from abusing this application will not be the responsibility of the author.

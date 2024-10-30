@@ -61,12 +61,46 @@ pip install -r requirements.txt
 
 **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
 
-Export that path and change permission:
+We are inside `./LocalAssistant/` directory.
 
 ```
-export PATH=$PWD:$PATH
+echo $PWD
+```
+
+The first path is your path to locas.cmd file (called as `<your_path>`). The second one is your PATH variable (called as `<PATH>`). Remember to left it somewhere so you will not forget.
+
+<br>
+
+ Change permission so we can access later:
+
+```
 chmod a+x locas.cmd
 ```
+
+<br>
+
+Next, we have to add this path to envirment variable. (with 3 steps)
+
+1. Edit the .bashrc file. And login.
+
+```
+sudo nano ~/.bashrc
+```
+
+2. At the end of the file, export the path. (Don't forget the `"`)
+
+```
+export LocalAssistant="<your_path>"
+export PATH="<PATH>:<your_path>"
+```
+
+3. After done, save the changed
+
+```
+source ~/.bashrc
+```
+
+<br>
 
 Before doing anything, we should download a model first.
 
@@ -76,7 +110,7 @@ locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 
 ### OS: Window
 
-We have in `./LocalAssistant/` directory.
+We are inside `./LocalAssistant/` directory.
 
 ```
 echo %cd%

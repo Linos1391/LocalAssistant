@@ -2,8 +2,8 @@ import argparse
 import os
 import shutil
 
-from .utils import MODEL_PATH, USER_PATH, LocalAssistantConfig, clean_all_cache, _print_dict
-from .models import ModelTask, download_model_by_HuggingFace, chat_with_limited_lines
+from utils import MODEL_PATH, USER_PATH, LocalAssistantConfig, clean_all_cache, _print_dict
+from models import ModelTask, download_model_by_HuggingFace, chat_with_limited_lines
 
 # +----------------------------+
 # | Setup parser and subparser |

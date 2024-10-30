@@ -176,6 +176,8 @@ locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 
 ## Running
 
+#### If you're using Anaconde or Docker, modify [locas.cmd](locas.cmd) file.
+
 ### Unix
 
 **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.

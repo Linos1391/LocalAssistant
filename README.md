@@ -55,10 +55,63 @@ pip install -r requirements.txt
 
 ## Preparing
 
+#### OS: Unix
+
+**Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
+
+Export that path and change permission:
+
+```
+export PATH=$PWD:$PATH
+chmod a+x locas.cmd
+```
+
+<br>
+
 Before doing anything, we should download a model first.
 
 ```
-
+locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 ```
 
+#### OS: Window
 
+Set that path:
+
+```
+set PATH=%PATH%;%cd%
+```
+
+<br>
+
+Before doing anything, we should download a model first.
+
+```
+locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
+```
+
+## Running
+
+#### OS: Unix
+
+```
+locas.cmd ...
+```
+
+Use `locas.cmd -h` for more.
+
+#### OS: Window
+
+```
+locas ...
+```
+
+Use `locas -h` for more.
+
+## License
+
+[GNU GPLv3](LICENSE)
+
+## Disclaimer
+
+This AI was designed to communicating with Hugging Face models in CLI.

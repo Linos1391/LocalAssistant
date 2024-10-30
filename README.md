@@ -57,7 +57,7 @@ pip install -r requirements.txt
 
 ## Preparing
 
-#### OS: Unix
+### OS: Unix
 
 **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
 
@@ -116,7 +116,7 @@ locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 
 ## Running
 
-#### OS: Unix
+### OS: Unix
 
 ```
 locas.cmd ...
@@ -124,7 +124,7 @@ locas.cmd ...
 
 Use `locas.cmd -h` for more.
 
-#### OS: Window
+### OS: Window
 
 ```
 locas ...

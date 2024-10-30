@@ -42,6 +42,27 @@ This AI is designed to be used in CLI.
 
 ## Features
 
+>> locas -h
+
+usage: locas [-h] [-v] [-c] [-V] COMMAND ...
+
+LocalAssistant (locas) is an AI designed to be used in CLI.
+
+options:
+  -h, --help     show this help message and exit
+  -v, --verbose  show debug messages
+  -c, --clean    delete all .cache directory (RECOMMEND USING WHEN DONE)
+  -V, --version  show program's version number and exit
+
+commands:
+  built-in commands (type 'locas COMMAND -h' for better description)
+
+  COMMAND
+    download     Download models from Hugging Face
+    config       Configurate LocalAssistant.
+    user         Config user.
+    chat         Chat with models for limited lines. (no history saved)
+
 <br>
 
 ## Installing
@@ -109,6 +130,18 @@ Next, we have to add this path to envirment variable. (with 4 steps)
 4. Click `New` and paste your path in.
 
 ![win_pre_4](asset/win_pre_4.png)
+
+Then press `OK`.
+
+5. On `System viables` tab, click `New` button.
+
+![win_pre_5](asset/win_pre_5.png)
+
+6. Type `LocalAssistant` on `Variable name`, then paste the path on `Variable value`
+
+![win_pre_6](asset/win_pre_6.png)
+
+Then press `OK`.
 
 **Notice:** When done, click `OK` until out. Otherwise the path might not saved. Try have a look again for sure.
 

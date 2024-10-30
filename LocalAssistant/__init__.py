@@ -1,4 +1,4 @@
-from utils import LocalAssistantException
+from .utils import LocalAssistantException
 
 # check for PyTorch
 try:

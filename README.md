@@ -9,7 +9,7 @@
 [![][conda-shield]][conda-url]
 [![][transformers-shield]][transformers-url]
 
-[locas-shield]: https://img.shields.io/badge/LocalAssisitant-0.1.0dev-red
+[locas-shield]: https://img.shields.io/badge/LocalAssisitant-0.1.dev1-red
 [locas-url]: https://github.com/Linos1391/LocalAssistant
 [python-shield]: https://img.shields.io/badge/Python-3.12+-yellow
 [python-url]: https://www.python.org/downloads/

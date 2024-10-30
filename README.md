@@ -66,8 +66,6 @@ export PATH=$PWD:$PATH
 chmod a+x locas.cmd
 ```
 
-<br>
-
 Before doing anything, we should download a model first.
 
 ```
@@ -81,8 +79,6 @@ Set that path:
 ```
 set PATH=%PATH%;%cd%
 ```
-
-<br>
 
 Before doing anything, we should download a model first.
 

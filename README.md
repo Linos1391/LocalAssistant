@@ -18,6 +18,8 @@
 [transformers-shield]: https://img.shields.io/badge/Transformers-4.46+-orange
 [transformers-url]: https://huggingface.co/docs/transformers/v4.46.0/index
 
+![LocalAssistant](asset/LocalAssistant.png)
+
 This AI is designed to be used in CLI.
 
 </div>
@@ -74,7 +76,7 @@ locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 
 #### OS: Window
 
-Set that path (Run as administrator):
+Set that path:
 
 ```
 setx /m PATH "%PATH%;%cd%

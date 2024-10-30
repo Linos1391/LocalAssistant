@@ -9,7 +9,7 @@
 [![][conda-shield]][conda-url]
 [![][transformers-shield]][transformers-url]
 
-[locas-shield]: https://img.shields.io/badge/LocalAssisitant-0.1.dev1-red
+[locas-shield]: https://img.shields.io/badge/LocalAssisitant-0.1.dev2-red
 [locas-url]: https://github.com/Linos1391/LocalAssistant
 [python-shield]: https://img.shields.io/badge/Python-3.12+-yellow
 [python-url]: https://www.python.org/downloads/
@@ -23,6 +23,14 @@
 This AI is designed to be used in CLI.
 
 </div>
+
+# Download by Pypi
+
+Visit [Pypi](https://pypi.org/project/LocalAssistant/0.1.0/) and follow the instuctrion.
+
+<br>
+
+# Download by source:
 
 ## Table of contents
 

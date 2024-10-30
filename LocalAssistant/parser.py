@@ -164,20 +164,20 @@ if parser_arg.clean:
 # ____download command function____
 
 if parser_arg.COMMAND == 'download':
-    if parser_arg.task not in ('1', 'Text_Generation', '2', 'Tokenizer', '3', 'Text_Generation_and_Tokenizer'):
+    if parser_arg.TASK not in ('1', 'Text_Generation', '2', 'Tokenizer', '3', 'Text_Generation_and_Tokenizer'):
         print(f"locas download: error: expect 'Text_Generation', 'Tokenizer', 'Text_Generation_and_Tokenizer', got '{parser_arg.task}'")
-        parser_arg.task = 'None'
+        parser_arg.TASK = 'None'
     
     # apply hf_token if it in config file.
     if parser_arg.token == '':
         parser_arg.token = CONFIG.DATA['hf_token']
     
     # convert string to int
-    if parser_arg.task in ('None', 'Text_Generation', 'Tokenizer', 'Text_Generation_and_Tokenizer'):
-        parser_arg.task = ModelTask.reverse_name_task(ModelTask, parser_arg.task)
+    if parser_arg.TASK in ('None', 'Text_Generation', 'Tokenizer', 'Text_Generation_and_Tokenizer'):
+        parser_arg.TASK = ModelTask.reverse_name_task(ModelTask, parser_arg.TASK)
     else:
-        parser_arg.task = int(parser_arg.task)
-    download_model_by_HuggingFace(parser_arg.verbose, parser_arg.name, parser_arg.path, parser_arg.token, parser_arg.task)
+        parser_arg.TASK = int(parser_arg.TASK)
+    download_model_by_HuggingFace(parser_arg.verbose, parser_arg.name, parser_arg.path, parser_arg.token, parser_arg.TASK)
     
 # ____config command function____
 
@@ -368,11 +368,4 @@ if parser_arg.COMMAND == 'chat':
         print("locas chat: error: Argument 'LINE' should not have non-positive value.")
     else:
         chat_with_limited_lines(parser_arg.verbose, parser_arg.text_generation, parser_arg.tokenizer, parser_arg.LINE, parser_arg.max_token)
-            
-            
-            
-        
-    
-    
-    
     

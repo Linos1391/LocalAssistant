@@ -74,10 +74,10 @@ locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 
 #### OS: Window
 
-Set that path:
+Set that path (Run as administrator):
 
 ```
-set PATH=%PATH%;%cd%
+setx /m PATH "%PATH%;%cd%
 ```
 
 Before doing anything, we should download a model first.

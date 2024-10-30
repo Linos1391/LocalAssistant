@@ -83,7 +83,10 @@ def _save_model(model, path: str, verbose: bool) -> None:
     
     stop: bool = False
     while not stop:
-        for files, folders, _ in os.walk(top=parent, topdown=False):
+        for root, folders, files in os.walk(top=parent):
+            if root != str(parent):
+                break
+            
             if folders == [] and files == []: # if dir is empty -> Skip anyway
                 stop = True
                 break
@@ -272,20 +275,28 @@ def _check_for_exist_model(verbose: bool, task: str) -> None:
     """
     Check for exist model. There is nothing we can do if the user chats without any models.
     """
+    CONFIG.get_config_file(verbose)
+    
     if task not in ('Text_Generation', 'Tokenizer'):
         raise LocalAssistantException("Wrong task sir") # Only human can do wrong.
 
     if CONFIG.DATA['models'][task] != '':
         return # nothing to fix.
     
-    for _, folders, _ in os.walk(MODEL_PATH / task, topdown=False):
-        try :
-            CONFIG.DATA['models'][task] = folders[0]
-            CONFIG.upload_config_file()
-            if verbose:
-                print(f'Apply {folders[0]} as model for {task}.')
-        except KeyError: # no model there.
-            raise LocalAssistantException(f"There is no models for {task}. Please type 'locas download -h' and download one.")
+    scanned: bool = False
+    for _1, folders, _2 in os.walk(MODEL_PATH / task):
+        if scanned:
+            break
+        
+        scanned = True
+        CONFIG.DATA['models'][task] = folders[0] # if there is no model, this has ignored
+            
+    if not scanned: # the above line has skipped    
+        raise LocalAssistantException(f"There is no models for {task}. Please type 'locas download -h' and download one.")
+    
+    CONFIG.upload_config_file(verbose)
+    if verbose:
+        print(f'Apply {folders[0]} as model for {task}.')
     
 def _chat(history: list, text_generation_model, tokenizer_model, max_new_tokens) -> dict | bool:
     prompt: str = input('\n\n>> ')
@@ -346,17 +357,16 @@ def chat_with_limited_lines(
         {"role": "system", "content": f"You are an Assistant named LocalAssistant (Locas). You only have {lines} lines, give the user the best supports as you can."},
     ]
     
-    CONFIG.get_config_file(verbose)
-    
-    
     if text_generation_model_name == '':
         _check_for_exist_model(verbose, 'Text_Generation')
+        CONFIG.get_config_file(verbose)
         text_generation_model_name = CONFIG.DATA['models']['Text_Generation']
         if verbose:
             print(f'User did not add model for text generation, use {text_generation_model_name} instead.')
         
     if tokenizer_model_name == '':
         _check_for_exist_model(verbose, 'Tokenizer')
+        CONFIG.get_config_file(verbose)
         tokenizer_model_name = CONFIG.DATA['models']['Tokenizer']
         if verbose:
             print(f'User did not add model for text generation, use {tokenizer_model_name} instead.')
@@ -374,8 +384,5 @@ def chat_with_limited_lines(
         reply = _chat(history, text_generation_model, tokenizer_model, max_new_tokens)
         if not reply: # User exit.
             break
-        
+            
         history.append(reply)
-
-
-

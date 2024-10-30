@@ -42,6 +42,7 @@ This AI is designed to be used in CLI.
 
 ## Features
 
+```
 >> locas -h
 
 usage: locas [-h] [-v] [-c] [-V] COMMAND ...
@@ -62,6 +63,7 @@ commands:
     config       Configurate LocalAssistant.
     user         Config user.
     chat         Chat with models for limited lines. (no history saved)
+```
 
 <br>
 

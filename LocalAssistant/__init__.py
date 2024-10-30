@@ -1,10 +1,10 @@
-from utils import LocalAssistantException
+from . import utils, parser, models
 
 # check for PyTorch
 try:
     import torch
 except ImportError:
-    raise LocalAssistantException("Could not find torch installed. Please visit https://pytorch.org/ and download the version for your device.")
+    raise utils.LocalAssistantException("Could not find torch installed. Please visit https://pytorch.org/ and download the version for your device.")
     
 __all__ = [
     'models',

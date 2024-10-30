@@ -61,8 +61,6 @@ pip install -r requirements.txt
 
 ### Unix
 
-**Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
-
 We are inside `./LocalAssistant/` directory.
 
 ```
@@ -109,6 +107,8 @@ Before doing anything, we should download a model first.
 ```
 locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 ```
+
+**Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
 
 ### Window
 
@@ -167,6 +167,8 @@ locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 ## Running
 
 ### Unix
+
+**Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
 
 ```
 locas.cmd ...

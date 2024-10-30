@@ -177,7 +177,7 @@ if parser_arg.COMMAND == 'download':
         parser_arg.TASK = ModelTask.reverse_name_task(ModelTask, parser_arg.TASK)
     else:
         parser_arg.TASK = int(parser_arg.TASK)
-    download_model_by_HuggingFace(parser_arg.verbose, parser_arg.name, parser_arg.path, parser_arg.token, parser_arg.TASK)
+    download_model_by_HuggingFace(parser_arg.verbose, parser_arg.name, parser_arg.PATH, parser_arg.token, parser_arg.TASK)
     
 # ____config command function____
 
@@ -368,4 +368,3 @@ if parser_arg.COMMAND == 'chat':
         print("locas chat: error: Argument 'LINE' should not have non-positive value.")
     else:
         chat_with_limited_lines(parser_arg.verbose, parser_arg.text_generation, parser_arg.tokenizer, parser_arg.LINE, parser_arg.max_token)
-    

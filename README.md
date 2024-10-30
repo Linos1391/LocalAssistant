@@ -65,6 +65,7 @@ We are inside `./LocalAssistant/` directory.
 
 ```
 echo $PWD
+echo $PATH
 ```
 
 The first path is your path to locas.cmd file (called as `<your_path>`). The second one is your PATH variable (called as `<PATH>`). Remember to left it somewhere so you will not forget.

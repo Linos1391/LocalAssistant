@@ -26,7 +26,7 @@ This AI is designed to be used in CLI.
 
 # Download by Pypi
 
-Visit [Pypi](https://pypi.org/project/LocalAssistant/0.1.0/) and follow the instuctrion.
+Visit [Pypi](https://pypi.org/project/LocalAssistant) and follow the instuctrion.
 
 <br>
 

@@ -38,7 +38,11 @@ This AI is designed to be used in CLI.
 
 6. [Disclaimer](#disclaimer)
 
+<br>
+
 ## Features
+
+<br>
 
 ## Installing
 
@@ -54,6 +58,8 @@ cd LocalAssistant
 ```
 pip install -r requirements.txt
 ```
+
+<br>
 
 ## Preparing
 
@@ -73,6 +79,8 @@ Before doing anything, we should download a model first.
 ```
 locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 ```
+
+<br>
 
 ### OS: Window
 
@@ -114,6 +122,8 @@ Before doing anything, we should download a model first.
 locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 ```
 
+<br>
+
 ## Running
 
 ### OS: Unix
@@ -124,6 +134,8 @@ locas.cmd ...
 
 Use `locas.cmd -h` for more.
 
+<br>
+
 ### OS: Window
 
 ```
@@ -132,9 +144,13 @@ locas ...
 
 Use `locas -h` for more.
 
+<br>
+
 ## License
 
 [GNU GPLv3](LICENSE)
+
+<br>
 
 ## Disclaimer
 

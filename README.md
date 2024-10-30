@@ -47,7 +47,9 @@ git clone https://github.com/Linos1391/LocalAssistant.git
 cd LocalAssistant
 ```
 
-2. Install the required python packages.
+2. Visit [PyTorch](https://pytorch.org/) and download the version for your device.
+
+3. Install the required python packages.
 
 ```
 pip install -r requirements.txt

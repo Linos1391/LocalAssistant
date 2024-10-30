@@ -150,221 +150,225 @@ subparser_chat.add_argument('-t', '--max_token', metavar='TOKEN', action='store'
 # | Process functions |
 # +-------------------+
 
-parser_arg: argparse.Namespace = parser.parse_args()
+def main():
+    parser_arg: argparse.Namespace = parser.parse_args()
 
-# get config data from locas_config.json file.
-CONFIG = LocalAssistantConfig()
-CONFIG.get_config_file(parser_arg.verbose)
+    # get config data from locas_config.json file.
+    CONFIG = LocalAssistantConfig()
+    CONFIG.get_config_file(parser_arg.verbose)
 
-# ____clean cache function____
+    # ____clean cache function____
 
-if parser_arg.clean:
-    clean_all_cache(parser_arg.verbose)
+    if parser_arg.clean:
+        clean_all_cache(parser_arg.verbose)
 
-# ____download command function____
+    # ____download command function____
 
-if parser_arg.COMMAND == 'download':
-    if parser_arg.TASK not in ('1', 'Text_Generation', '2', 'Tokenizer', '3', 'Text_Generation_and_Tokenizer'):
-        print(f"locas download: error: expect 'Text_Generation', 'Tokenizer', 'Text_Generation_and_Tokenizer', got '{parser_arg.task}'")
-        parser_arg.TASK = 'None'
-    
-    # apply hf_token if it in config file.
-    if parser_arg.token == '':
-        parser_arg.token = CONFIG.DATA['hf_token']
-    
-    # convert string to int
-    if parser_arg.TASK in ('None', 'Text_Generation', 'Tokenizer', 'Text_Generation_and_Tokenizer'):
-        parser_arg.TASK = ModelTask.reverse_name_task(ModelTask, parser_arg.TASK)
-    else:
-        parser_arg.TASK = int(parser_arg.TASK)
-    download_model_by_HuggingFace(parser_arg.verbose, parser_arg.name, parser_arg.PATH, parser_arg.token, parser_arg.TASK)
-    
-# ____config command function____
+    if parser_arg.COMMAND == 'download':
+        if parser_arg.TASK not in ('1', 'Text_Generation', '2', 'Tokenizer', '3', 'Text_Generation_and_Tokenizer'):
+            print(f"locas download: error: expect 'Text_Generation', 'Tokenizer', 'Text_Generation_and_Tokenizer', got '{parser_arg.task}'")
+            parser_arg.TASK = 'None'
 
-if parser_arg.COMMAND == 'config':
-    # show config data.
-    if parser_arg.show:
-        # get data from the file.
-        CONFIG.print_config_data()
-        
-    # modify config data.
-    if parser_arg.modify:
-        command: str = ''
-        while True:
+        # apply hf_token if it in config file.
+        if parser_arg.token == '':
+            parser_arg.token = CONFIG.DATA['hf_token']
+
+        # convert string to int
+        if parser_arg.TASK in ('None', 'Text_Generation', 'Tokenizer', 'Text_Generation_and_Tokenizer'):
+            parser_arg.TASK = ModelTask.reverse_name_task(ModelTask, parser_arg.TASK)
+        else:
+            parser_arg.TASK = int(parser_arg.TASK)
+        download_model_by_HuggingFace(parser_arg.verbose, parser_arg.name, parser_arg.PATH, parser_arg.token, parser_arg.TASK)
+
+    # ____config command function____
+
+    if parser_arg.COMMAND == 'config':
+        # show config data.
+        if parser_arg.show:
+            # get data from the file.
             CONFIG.print_config_data()
-            print("Type KEY to modify KEY's VALUE. Type 'exit' to exit.\n")
-            command = input('>> ')
-            command = command.lower()
-            print()
-            
-            if command in ('exit', 'exit()'):
-                break
-            
-            if command not in tuple(CONFIG.DATA.keys()):
-                print(f"locas config: error: no KEY named '{command}'\n")
-                input('Press ENTER to continue...')
-                print()
-                continue
-            
-            if command == 'hf_token':
-                print("'hf_token' is your Hugging Face token. Some models might be restricted and need authenticated. Use token to login temporately and download model.\n")
-                print("Modify VALUE of 'hf_token' to ... (Type 'exit' to exit.)\n")
+
+        # modify config data.
+        if parser_arg.modify:
+            command: str = ''
+            while True:
+                CONFIG.print_config_data()
+                print("Type KEY to modify KEY's VALUE. Type 'exit' to exit.\n")
                 command = input('>> ')
+                command = command.lower()
                 print()
+
+                if command in ('exit', 'exit()'):
+                    break
                 
-                # for exit, not everyone remember their token anyway.
-                if command.lower() in ('exit', 'exit()'):
+                if command not in tuple(CONFIG.DATA.keys()):
+                    print(f"locas config: error: no KEY named '{command}'\n")
+                    input('Press ENTER to continue...')
+                    print()
                     continue
                 
-                CONFIG.DATA.update({'hf_token': command})
-                CONFIG.upload_config_file(parser_arg.verbose)
-                continue
-            
-            if command == 'load_in_bits':
-                while command not in ('4', '8', '16', '32'):
-                    print("'load_in_bits' is for 'quantization' method. if the VALUE is 16, then model is load in 16 bits (2 bytes) per parameters. Choose from: '4', '8', '16', '32'.\n")
-                    print("Modify VALUE of 'load_in_bits' to ... (Type 'exit' to exit.)\n")
-                    command = input('>> ')
-                    print()
-                    
-                    # for exit.
-                    if command.lower() in ('exit', 'exit()'):
-                        command = CONFIG.DATA['load_in_bits'] # if exit, nothing change.
-                        break
-                    
-                    if command not in ('4', '8', '16', '32'):
-                        print(f"locas config: error: expect '4', '8', '16', '32', got {command}\n")
-                CONFIG.DATA.update({'load_in_bits': command})
-                CONFIG.upload_config_file(parser_arg.verbose)
-                continue
-            
-            if command == 'models':
-                while True:
-                    _print_dict(CONFIG.DATA['models'])
-                    print("\nType KEY to modify KEY's VALUE. Type 'exit' to exit.\n")
+                if command == 'hf_token':
+                    print("'hf_token' is your Hugging Face token. Some models might be restricted and need authenticated. Use token to login temporately and download model.\n")
+                    print("Modify VALUE of 'hf_token' to ... (Type 'exit' to exit.)\n")
                     command = input('>> ')
                     print()
 
+                    # for exit, not everyone remember their token anyway.
                     if command.lower() in ('exit', 'exit()'):
-                        break
-                    
-                    if command not in tuple(CONFIG.DATA['models'].keys()):
-                        print(f"locas config: error: no KEY named '{command}'\n")
-                        input('Press ENTER to continue...')
-                        print()
                         continue
                     
-                    for model in CONFIG.DATA['models'].keys():
-                        if command != model:
+                    CONFIG.DATA.update({'hf_token': command})
+                    CONFIG.upload_config_file(parser_arg.verbose)
+                    continue
+                
+                if command == 'load_in_bits':
+                    while command not in ('4', '8', '16', '32'):
+                        print("'load_in_bits' is for 'quantization' method. if the VALUE is 16, then model is load in 16 bits (2 bytes) per parameters. Choose from: '4', '8', '16', '32'.\n")
+                        print("Modify VALUE of 'load_in_bits' to ... (Type 'exit' to exit.)\n")
+                        command = input('>> ')
+                        print()
+
+                        # for exit.
+                        if command.lower() in ('exit', 'exit()'):
+                            command = CONFIG.DATA['load_in_bits'] # if exit, nothing change.
+                            break
+                        
+                        if command not in ('4', '8', '16', '32'):
+                            print(f"locas config: error: expect '4', '8', '16', '32', got {command}\n")
+                    CONFIG.DATA.update({'load_in_bits': command})
+                    CONFIG.upload_config_file(parser_arg.verbose)
+                    continue
+                
+                if command == 'models':
+                    while True:
+                        _print_dict(CONFIG.DATA['models'])
+                        print("\nType KEY to modify KEY's VALUE. Type 'exit' to exit.\n")
+                        command = input('>> ')
+                        print()
+
+                        if command.lower() in ('exit', 'exit()'):
+                            break
+                        
+                        if command not in tuple(CONFIG.DATA['models'].keys()):
+                            print(f"locas config: error: no KEY named '{command}'\n")
+                            input('Press ENTER to continue...')
+                            print()
                             continue
                         
-                        while True:
-                            # print all exist model dir.
-                            print('Choose from:')
-                            folder_model: list = []
-                            for _, folders, _ in os.walk(MODEL_PATH / model, topdown=False):
-                                folder_model = folders
-                            for folder in folder_model:
-                                print(f'    - {folder}')
-                            print()
-                            
-                            print(f"Modify VALUE of '{model}' to ... (Type 'exit' to exit.)\n")
-                            command = input('>> ')
-                            print()
-                            
-                            # for exit.
-                            if command.lower() in ('exit', 'exit()'):
-                                break
-                            
-                            if command not in folder_model:
-                                print(f"locas config: error: '{command} is not from allowed name'\n")
-                                input('Press ENTER to continue...')
-                                print()
+                        for model in CONFIG.DATA['models'].keys():
+                            if command != model:
                                 continue
                             
-                            CONFIG.DATA['models'].update({model: command})
-                            CONFIG.upload_config_file(parser_arg.verbose)
-                            break
-            
-            if command == 'users':
-                print("Type 'locas user -h' for better config.\n")
-                input('Press ENTER to continue...')
-                print()
-                continue
-            
-# ____user command function____
+                            while True:
+                                # print all exist model dir.
+                                print('Choose from:')
+                                folder_model: list = []
+                                for _, folders, _ in os.walk(MODEL_PATH / model, topdown=False):
+                                    folder_model = folders
+                                for folder in folder_model:
+                                    print(f'    - {folder}')
+                                print()
 
-if parser_arg.COMMAND == 'user':
-    
-    exist, exist_index = CONFIG.check_exist_user(parser_arg.TARGET)
-    if parser_arg.verbose:
-        if exist:
-            print(f'User {parser_arg.TARGET} is exist.')
-        else:
-            print(f'User {parser_arg.TARGET} is not exist.')
-    
-    # create user.
-    if parser_arg.create:
-        if exist:
-            print(f'local user: error: user {parser_arg.TARGET} existed')
-        else: # if user existed, return an error.
-            # update config file.
-            CONFIG.DATA['users'].update({len(CONFIG.DATA['users']): parser_arg.TARGET})
-            CONFIG.upload_config_file(parser_arg.verbose)
+                                print(f"Modify VALUE of '{model}' to ... (Type 'exit' to exit.)\n")
+                                command = input('>> ')
+                                print()
+
+                                # for exit.
+                                if command.lower() in ('exit', 'exit()'):
+                                    break
+                                
+                                if command not in folder_model:
+                                    print(f"locas config: error: '{command} is not from allowed name'\n")
+                                    input('Press ENTER to continue...')
+                                    print()
+                                    continue
+                                
+                                CONFIG.DATA['models'].update({model: command})
+                                CONFIG.upload_config_file(parser_arg.verbose)
+                                break
+                            
+                if command == 'users':
+                    print("Type 'locas user -h' for better config.\n")
+                    input('Press ENTER to continue...')
+                    print()
+                    continue
                 
-            # update on physical directory
-            os.mkdir(USER_PATH / parser_arg.TARGET)
-            os.mkdir(USER_PATH / parser_arg.TARGET / 'history')
-            os.mkdir(USER_PATH / parser_arg.TARGET / 'memory')
-            
-            if parser_arg.verbose:
-                print(f'Created user {parser_arg.TARGET}.')
-    
-    # delete user.
-    elif parser_arg.delete:
-        if not exist:
-            print(f'local user: error: user {parser_arg.TARGET} is not existed')
-        else: # if user not existed, return an error.
-            # update config file.
-            CONFIG.remove_user_with_index(parser_arg.verbose, exist_index)
-            
-            # update on physical directory
-            shutil.rmtree(USER_PATH / parser_arg.TARGET)
+    # ____user command function____
 
-            if parser_arg.verbose:
-                print(f'Deleted user {parser_arg.TARGET}.')
-    
-    # rename user.
-    elif parser_arg.rename is not None:
-        if not exist:
-            print(f'local user: error: user {parser_arg.TARGET} is not existed')
-        else: # if user not existed, return an error.
-            # update config file.
-            CONFIG.DATA['users'].update({exist_index: parser_arg.rename})
-            CONFIG.upload_config_file(parser_arg.verbose)
-            
-            # update on physical directory
-            os.rename(USER_PATH / CONFIG.DATA['users'][exist_index], USER_PATH / parser_arg.rename)
+    if parser_arg.COMMAND == 'user':
 
-            if parser_arg.verbose:
-                print(f'Renamed user {parser_arg.TARGET} to {parser_arg.rename}.')
-    
-    # change user.
-    else:
-        if not exist:
-            print(f'local user: error: user {parser_arg.TARGET} is not existed')
-        else: # if user not existed, return an error.
-            # update config file.
-            CONFIG.DATA['users'].update({"current": exist_index})
-            CONFIG.upload_config_file(parser_arg.verbose)
+        exist, exist_index = CONFIG.check_exist_user(parser_arg.TARGET)
+        if parser_arg.verbose:
+            if exist:
+                print(f'User {parser_arg.TARGET} is exist.')
+            else:
+                print(f'User {parser_arg.TARGET} is not exist.')
 
-            if parser_arg.verbose:
-                print(f'Change user to {parser_arg.rename}.')
+        # create user.
+        if parser_arg.create:
+            if exist:
+                print(f'local user: error: user {parser_arg.TARGET} existed')
+            else: # if user existed, return an error.
+                # update config file.
+                CONFIG.DATA['users'].update({len(CONFIG.DATA['users']): parser_arg.TARGET})
+                CONFIG.upload_config_file(parser_arg.verbose)
 
-# ____chat command function____       
-             
-if parser_arg.COMMAND == 'chat':
-    if parser_arg.LINE < 1:
-        print("locas chat: error: Argument 'LINE' should not have non-positive value.")
-    else:
-        chat_with_limited_lines(parser_arg.verbose, parser_arg.text_generation, parser_arg.tokenizer, parser_arg.LINE, parser_arg.max_token)
+                # update on physical directory
+                os.mkdir(USER_PATH / parser_arg.TARGET)
+                os.mkdir(USER_PATH / parser_arg.TARGET / 'history')
+                os.mkdir(USER_PATH / parser_arg.TARGET / 'memory')
+
+                if parser_arg.verbose:
+                    print(f'Created user {parser_arg.TARGET}.')
+
+        # delete user.
+        elif parser_arg.delete:
+            if not exist:
+                print(f'local user: error: user {parser_arg.TARGET} is not existed')
+            else: # if user not existed, return an error.
+                # update config file.
+                CONFIG.remove_user_with_index(parser_arg.verbose, exist_index)
+
+                # update on physical directory
+                shutil.rmtree(USER_PATH / parser_arg.TARGET)
+
+                if parser_arg.verbose:
+                    print(f'Deleted user {parser_arg.TARGET}.')
+
+        # rename user.
+        elif parser_arg.rename is not None:
+            if not exist:
+                print(f'local user: error: user {parser_arg.TARGET} is not existed')
+            else: # if user not existed, return an error.
+                # update config file.
+                CONFIG.DATA['users'].update({exist_index: parser_arg.rename})
+                CONFIG.upload_config_file(parser_arg.verbose)
+
+                # update on physical directory
+                os.rename(USER_PATH / CONFIG.DATA['users'][exist_index], USER_PATH / parser_arg.rename)
+
+                if parser_arg.verbose:
+                    print(f'Renamed user {parser_arg.TARGET} to {parser_arg.rename}.')
+
+        # change user.
+        else:
+            if not exist:
+                print(f'local user: error: user {parser_arg.TARGET} is not existed')
+            else: # if user not existed, return an error.
+                # update config file.
+                CONFIG.DATA['users'].update({"current": exist_index})
+                CONFIG.upload_config_file(parser_arg.verbose)
+
+                if parser_arg.verbose:
+                    print(f'Change user to {parser_arg.rename}.')
+
+    # ____chat command function____       
+
+    if parser_arg.COMMAND == 'chat':
+        if parser_arg.LINE < 1:
+            print("locas chat: error: Argument 'LINE' should not have non-positive value.")
+        else:
+            chat_with_limited_lines(parser_arg.verbose, parser_arg.text_generation, parser_arg.tokenizer, parser_arg.LINE, parser_arg.max_token)
+
+if __name__ == '__main__':
+    main()

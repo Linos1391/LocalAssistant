@@ -3,7 +3,7 @@ import os
 import shutil
 
 from utils import MODEL_PATH, USER_PATH, LocalAssistantConfig, clean_all_cache, _print_dict
-from models import ModelTask, download_model_by_HuggingFace, chat_with_limited_lines
+from models import ModelTask, download_model_by_HuggingFace, chat_with_limited_lines, chat_with_history
 
 # +----------------------------+
 # | Setup parser and subparser |
@@ -144,7 +144,20 @@ subparser_chat = subparser.add_parser(
 subparser_chat.add_argument('LINE', action='store', type=int, help='Number of line to chat with')
 subparser_chat.add_argument('-tgm', '--text_generation', metavar='MODEL', action='store', help='Use downloaded text generation model', default='')
 subparser_chat.add_argument('-tm', '--tokenizer', metavar='MODEL', action='store', help='Use downloaded tokenizer model', default='')
-subparser_chat.add_argument('-t', '--max_token', metavar='TOKEN', action='store', type=int, help='Max tokens to generate', default= 50)
+subparser_chat.add_argument('-t', '--max_token', metavar='TOKEN', action='store', type=int, help='Max tokens to generate', default= 150)
+
+# ____start command____
+
+subparser_start = subparser.add_parser(
+    name='start',
+    help='Chat with models using history.',
+    description='Chat with models using history.',
+)
+
+subparser_start.add_argument('-u', '--user', action='store', help='The user name', default='default')
+subparser_start.add_argument('-tgm', '--text_generation', metavar='MODEL', action='store', help='Use downloaded text generation model', default='')
+subparser_start.add_argument('-tm', '--tokenizer', metavar='MODEL', action='store', help='Use downloaded tokenizer model', default='')
+subparser_start.add_argument('-t', '--max_token', metavar='TOKEN', action='store', type=int, help='Max tokens to generate', default= 150)
 
 # +-------------------+
 # | Process functions |
@@ -263,7 +276,9 @@ def main():
                                 # print all exist model dir.
                                 print('Choose from:')
                                 folder_model: list = []
-                                for _, folders, _ in os.walk(MODEL_PATH / model, topdown=False):
+                                for root, folders, _ in os.walk(MODEL_PATH / model):
+                                    if root != str(MODEL_PATH / model):
+                                        break   
                                     folder_model = folders
                                 for folder in folder_model:
                                     print(f'    - {folder}')
@@ -369,6 +384,13 @@ def main():
             print("locas chat: error: Argument 'LINE' should not have non-positive value.")
         else:
             chat_with_limited_lines(parser_arg.verbose, parser_arg.text_generation, parser_arg.tokenizer, parser_arg.LINE, parser_arg.max_token)
+
+    # ____start command function____     
+    
+    if parser_arg.COMMAND == 'start':
+        chat_with_history(parser_arg.verbose, parser_arg.text_generation, parser_arg.tokenizer, parser_arg.user, parser_arg.max_token)
+      
+
 
 if __name__ == '__main__':
     main()

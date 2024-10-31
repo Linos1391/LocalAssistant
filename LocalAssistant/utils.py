@@ -1,6 +1,7 @@
 import pathlib
 import shutil
 import json
+import os
 
 # Path
 PROJECT_PATH: str = pathlib.Path(__file__).parent
@@ -95,7 +96,17 @@ class LocalAssistantConfig:
     def print_config_data(self) -> None:
         _print_dict(self.DATA)
 
-    def check_exist_user(self, target: str) -> tuple[bool, str]:
+    def check_exist_user_physically(self, target) -> bool:
+        for _, folders, _ in os.walk(USER_PATH / target):
+            if scanned:
+                break
+            scanned = True
+            
+            if 'history' in folders and 'memory' in folders:
+                return True
+            return False
+        
+    def check_exist_user(self, target: str) -> tuple[bool, str]:        
         for index in range(1, len(self.DATA['users'])):
             if self.DATA['users'][str(index)].lower() == target.lower(): # Not allow even capitalized.
                 return (True, str(index))

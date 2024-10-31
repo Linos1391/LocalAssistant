@@ -1,12 +1,13 @@
 import os
 import pathlib
+import json
 from threading import Thread
 
 from huggingface_hub import login, logout
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, TextIteratorStreamer
 import torch
 
-from utils import LocalAssistantException, LocalAssistantConfig, MODEL_PATH
+from utils import LocalAssistantException, LocalAssistantConfig, MODEL_PATH, USER_PATH
 
 CONFIG = LocalAssistantConfig()
 
@@ -284,7 +285,7 @@ def _check_for_exist_model(verbose: bool, task: str) -> None:
         return # nothing to fix.
     
     scanned: bool = False
-    for _1, folders, _2 in os.walk(MODEL_PATH / task):
+    for _, folders, _ in os.walk(MODEL_PATH / task):
         if scanned:
             break
         
@@ -329,17 +330,17 @@ def _chat(history: list, text_generation_model, tokenizer_model, max_new_tokens)
         output = output.removesuffix('<|im_end|>')
         
         full_output += output
-        print(output, end='')
+        print(output, end='', flush=True)
         
     return {"role": "assistant", "content": full_output}
     
 def chat_with_limited_lines(
-    verbose: bool,
-    text_generation_model_name: str = '',
-    tokenizer_model_name: str = '',
-    lines: int = 1,
-    max_new_tokens: int = 50,
-):
+        verbose: bool,
+        text_generation_model_name: str = '',
+        tokenizer_model_name: str = '',
+        lines: int = 1,
+        max_new_tokens: int = 150,
+    ):
     """
     Chat with models for limited lines. Recommend for fast chat as non-user. (no history saved)
     Args:
@@ -347,7 +348,7 @@ def chat_with_limited_lines(
         text_generation_model_name (str): name of the text generation model, get from config file if got blank.
         tokenizer_model_name (str): name of the tokenizer model, get from config file if got blank.
         lines (int): lines of chat (not count 'assistant'), default as 1.
-        max_new_tokens (int): max tokens to generate, default as 50.
+        max_new_tokens (int): max tokens to generate, default as 150.
     """
     
     if lines < 1:
@@ -384,5 +385,221 @@ def chat_with_limited_lines(
         reply = _chat(history, text_generation_model, tokenizer_model, max_new_tokens)
         if not reply: # User exit.
             break
-            
+        
         history.append(reply)
+
+# +-----------------+
+# | locas start ... |
+# +-----------------+
+
+def chat_with_history(
+        verbose: bool,
+        text_generation_model_name: str = '',
+        tokenizer_model_name: str = '',
+        user: str = 'default',
+        max_new_tokens: int = 150,
+    ):
+    """
+    Chat with models for limited lines. Recommend for fast chat as non-user. (no history saved)
+    Args:
+        verbose (bool): show debug messages
+        text_generation_model_name (str): name of the text generation model, get from config file if got blank.
+        tokenizer_model_name (str): name of the tokenizer model, get from config file if got blank.
+        user (str): chat by user, default as 'default'.
+        max_new_tokens (int): max tokens to generate, default as 50.
+    """
+
+    CONFIG.get_config_file(verbose)
+
+    if user == 'default': # user did not add 'user'.
+        scanned: bool = False
+        for _, folders, _ in os.walk(USER_PATH):
+            if scanned:
+                break
+            scanned = True
+            
+            if CONFIG.DATA['users']['current'] == '': # not in config file
+                if verbose:
+                    print("Config file does not have current user. Set user as default.")
+                
+                CONFIG.DATA['users'].update({
+                        'current': '1',
+                        '1': 'default',
+                    })
+                CONFIG.upload_config_file(verbose)
+                
+                # make dir for user default.
+                try:
+                    os.makedirs(USER_PATH / 'default' / 'history')
+                except:
+                    try: 
+                        os.mkdir(USER_PATH / 'default' / 'memory')
+                    except:
+                        pass
+            
+            if CONFIG.DATA['users'][CONFIG.DATA['users']['current']] in folders:
+                if verbose:
+                    print(f"Set user as '{CONFIG.DATA['users'][CONFIG.DATA['users']['current']]}'")
+                user = CONFIG.DATA['users'][CONFIG.DATA['users']['current']]
+                
+        if not scanned: # the above line has been skipped    
+            try:
+                os.mkdir(USER_PATH)
+            except:
+                pass
+                
+            os.mkdir(USER_PATH / 'default')
+            os.mkdir(USER_PATH / 'default' / 'history')
+            os.mkdir(USER_PATH / 'default' / 'memory')
+            CONFIG.DATA['users'].update({
+                    'current': '1',
+                    '1': 'default',
+                })
+            CONFIG.upload_config_file()
+      
+    else: # user add 'user'.  
+        if not CONFIG.check_exist_user_physically(user):
+            exist, exist_index = CONFIG.check_exist_user(user)
+            
+            if exist:
+                CONFIG.DATA['users'].update({exist_index: user})
+            else:
+                CONFIG.DATA['users'].update({len(CONFIG.DATA['users']): user})
+            CONFIG.upload_config_file(verbose)
+            
+            # update on physical directory
+            try:
+                os.mkdir(USER_PATH)
+            except:
+                pass
+            
+            os.mkdir(USER_PATH / user)
+            os.mkdir(USER_PATH / user / 'history')
+            os.mkdir(USER_PATH / user / 'memory')
+            
+            if verbose:
+                print(f"Created user '{user}'.")
+    
+    if text_generation_model_name == '':
+        _check_for_exist_model(verbose, 'Text_Generation')
+        CONFIG.get_config_file(verbose)
+        text_generation_model_name = CONFIG.DATA['models']['Text_Generation']
+        if verbose:
+            print(f'User did not add model for text generation, use {text_generation_model_name} instead.')
+        
+    if tokenizer_model_name == '':
+        _check_for_exist_model(verbose, 'Tokenizer')
+        CONFIG.get_config_file(verbose)
+        tokenizer_model_name = CONFIG.DATA['models']['Tokenizer']
+        if verbose:
+            print(f'User did not add model for text generation, use {tokenizer_model_name} instead.')
+    
+    # load model
+    if verbose:
+        print('Begin to load models.')
+    text_generation_model = AutoModelForCausalLM.from_pretrained(MODEL_PATH / 'Text_Generation' / text_generation_model_name, use_safetensors=True, device_map="auto", torch_dtype=torch.bfloat16) #float32 is wasteful!
+    tokenizer_model = AutoTokenizer.from_pretrained(MODEL_PATH / 'Tokenizer' / tokenizer_model_name, use_safetensors=True, device_map="auto", torch_dtype=torch.bfloat16)
+    if verbose:
+        print('Done loading models.')
+
+    chat_history: list = []
+    chat_name: str = ''
+    
+    # load chat history.
+    if verbose:
+        print('Loading history.')
+    while True:
+        scanned: bool = False
+        history_list: list = []
+        
+        for _, _, files in os.walk(USER_PATH / user / 'history'):
+            if scanned:
+                break
+            scanned = True
+
+            if files == []:
+                print("There is no history yet, please create one.")
+            else:
+                print("Choose from:")
+            for history in files:
+                if history.endswith('.json'):
+                    print(f'    - {history.removesuffix('.json')}')
+                    history_list.append(history.removesuffix('.json'))
+
+        print("Type 'create [name (Required, 1 WORD ONLY] [system_prompt (Optional)]' to create new history.")
+        print("Type 'delete [name (Required, 1 WORD ONLY]' to delete history.")
+        print("Type 'exit' to exit.\n")
+        command: str = input('>> ')
+        if command.lower() in ('exit', 'exit()'):
+            break
+        
+        if command.split()[0].lower() == 'create':
+            try:
+                chat_name, system_prompt = command.split(maxsplit=3)[1:3]
+            except ValueError:
+                try:
+                    chat_name = command.split()[1]
+                except:
+                    print('locas start: error: require argument [name]\n')
+                    continue
+                
+                system_prompt = "You are an Assistant named LocalAssistant (Locas). Give the user the best supports as you can."
+            
+            if chat_name in history_list: # throw error if create same name.
+                print(f"locas start: error: name {chat_name} is used\n")
+                continue
+            
+            chat_history = [
+                {"role": "system", "content": system_prompt},
+            ]
+            print()
+            break
+        
+        if command.split()[0].lower() == 'delete':
+            try:
+                chat_name = command.split()[1]
+            except:
+                print('locas start: error: require argument [name]\n')
+                continue
+                
+                system_prompt = "You are an Assistant named LocalAssistant (Locas). Give the user the best supports as you can."
+            
+            if chat_name not in history_list: # throw error if create same name.
+                print(f"locas start: error: name {chat_name} is not existed\n")
+                continue
+            
+            os.remove(USER_PATH / user / 'history' / f'{chat_name}.json')
+            print()
+            continue
+        
+        
+        if command not in history_list:
+            print(f'locas start: error: No history name {command}')
+            continue
+            
+        chat_name = command
+            
+        with open(USER_PATH / user / 'history' / f'{chat_name}.json', mode="r", encoding="utf-8") as read_file:
+            chat_history = json.load(read_file)
+            read_file.close()
+            
+        print()
+        break
+
+    if chat_name == '':
+        return # user typed 'exit'
+    
+    # chat with history.
+    print(f"Start chatting as user '{user}' with '{chat_name}' for history, '{text_generation_model_name}' for text generation and '{tokenizer_model_name}' for tokenizer.\n\nType 'exit' to exit.", end='')
+    while True:
+        reply = _chat(chat_history, text_generation_model, tokenizer_model, max_new_tokens)
+        
+        if not reply: # User exit.
+            break
+        
+        chat_history.append(reply)
+        
+        with open(USER_PATH / user / 'history' / f'{chat_name}.json', mode="w", encoding="utf-8") as write_file:
+            json.dump(chat_history, write_file, indent=4)
+            write_file.close()
+            

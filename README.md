@@ -95,7 +95,7 @@ Next, we have to add this path to envirment variable. (with 2 steps)
 
 ```
 echo 'export LocalAssistant="<your_path>"
-export PATH=$PATH:$LocalAssistant' >> ~/.bash_profile
+export PATH=$LocalAssistant:$PATH' >> ~/.bash_profile
 ```
 
 2. After done, save the changed.

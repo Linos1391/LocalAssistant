@@ -455,7 +455,7 @@ def chat_with_history(
                     'current': '1',
                     '1': 'default',
                 })
-            CONFIG.upload_config_file()
+            CONFIG.upload_config_file(verbose)
       
     else: # user add 'user'.  
         if not CONFIG.check_exist_user_physically(user):

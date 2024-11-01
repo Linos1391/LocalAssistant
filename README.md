@@ -10,7 +10,7 @@
 [![][python-shield]][python-url]
 
 [latest-release-shield]: https://badgen.net/github/release/Linos1391/LocalAssistant/development?icon=github
-[latest-release-url]: https://github.com/invoke-ai/InvokeAI/releases/latest
+[latest-release-url]: https://github.com/Linos1391/LocalAssistant/releases/latest
 [latest-commit-shield]: https://badgen.net/github/last-commit/Linos1391/LocalAssistant/main?icon=github
 [latest-commit-url]: https://github.com/Linos1391/LocalAssistant/commits/main
 [pypi-shield]: https://img.shields.io/badge/pypi-LocalAssistant-blue

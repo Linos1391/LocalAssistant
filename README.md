@@ -4,19 +4,19 @@
 
 **Locas - your local assistant**
 
-[![][locas-shield]][locas-url]
+[![][latest-release-shield]][latest-release-url]
+[![][latest-commit-shield]][latest-commit-url]
+[![][pypi-shield]][pypi-url]
 [![][python-shield]][python-url]
-[![][conda-shield]][conda-url]
-[![][transformers-shield]][transformers-url]
 
-[locas-shield]: https://img.shields.io/badge/LocalAssisitant-0.1.dev2-red
-[locas-url]: https://github.com/Linos1391/LocalAssistant
-[python-shield]: https://img.shields.io/badge/Python-3.12+-yellow
+[latest-release-shield]: https://badgen.net/github/release/Linos1391/LocalAssistant/development?icon=github
+[latest-release-url]: https://github.com/invoke-ai/InvokeAI/releases/latest
+[latest-commit-shield]: https://badgen.net/github/last-commit/Linos1391/LocalAssistant/main?icon=github
+[latest-commit-url]: https://github.com/Linos1391/LocalAssistant/commits/main
+[pypi-shield]: https://img.shields.io/badge/pypi-LocalAssistant-blue
+[pypi-url]: https://pypi.org/project/LocalAssistant/
+[python-shield]: https://img.shields.io/badge/python-3.10+-yellow
 [python-url]: https://www.python.org/downloads/
-[conda-shield]: https://img.shields.io/badge/Anaconda-24.7+-grass
-[conda-url]: https://www.anaconda.com/download
-[transformers-shield]: https://img.shields.io/badge/Transformers-4.46+-orange
-[transformers-url]: https://huggingface.co/docs/transformers/v4.46.0/index
 
 ![LocalAssistant](asset/LocalAssistant.png)
 

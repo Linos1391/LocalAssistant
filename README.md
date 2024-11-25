@@ -73,62 +73,66 @@ pip install -r requirements.txt
 
 ## Preparing 
 
-### [UNIX](#unix) | [Window](#window)
+<details>
+  <summary><h3>Unix</h3></summary>
+  <p>
+    Go to your `LocalAssistant` directory (Where `requirements.txt` is stored). 
 
-### Unix
+    ```
+    cd ...
+    ```
 
-Go to your `LocalAssistant` directory (Where `requirements.txt` is stored). 
+    Then thing goes:
 
-```
-cd ...
-```
+    ```
+    chmod a+x locas.cmd
+    echo 'export LocalAssistant=$PWD
+    export PATH=$LocalAssistant:$PATH' >> ~/.bash_profile
+    source ~/.bash_profile
+    ```
 
-Then thing goes:
+    <br>
 
-```
-chmod a+x locas.cmd
-echo 'export LocalAssistant=$PWD
-export PATH=$LocalAssistant:$PATH' >> ~/.bash_profile
-source ~/.bash_profile
-```
+    Before doing anything, we should download a model first.
 
-<br>
+    ```
+    locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
+    ```
 
-Before doing anything, we should download a model first.
+    **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
+  </p>
+</details>
 
-```
-locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
-```
+<details>
+  <summary><h3>Window</h3></summary>
+  <p>
+    Open your Powershell. Go to your `LocalAssistant` directory (Where `requirements.txt` is stored). 
 
-**Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
+    ```
+    cd ...
+    ```
 
-### Window
+    Then thing goes:
 
-Open your Powershell. Go to your `LocalAssistant` directory (Where `requirements.txt` is stored). 
+    ```
+    $new_entry = $PWD
 
-```
-cd ...
-```
+    $old_path = [Environment]::GetEnvironmentVariable('path', 'user');
+    $new_path = $old_path + ';' + $new_entry
+    [Environment]::SetEnvironmentVariable('path', $new_path,'User');
+    ```
 
-Then thing goes:
+    Then close your Powershell.
 
-```
-$new_entry = $PWD
+    <br>
 
-$old_path = [Environment]::GetEnvironmentVariable('path', 'user');
-$new_path = $old_path + ';' + $new_entry
-[Environment]::SetEnvironmentVariable('path', $new_path,'User');
-```
+    Before doing anything, we should download a model first.
 
-Then close your Powershell.
-
-<br>
-
-Before doing anything, we should download a model first.
-
-```
-locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
-```
+    ```
+    locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
+    ```
+  </p>
+</details>
 
 <br>
 
@@ -136,23 +140,30 @@ locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 
 #### If you're using Anaconde or Docker, modify [locas.cmd](locas.cmd) file.
 
-### Unix
+<details>
+  <summary><h3>Unix</h3></summary>
+  <p>
+    **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
 
-**Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
+    ```
+    locas.cmd ...
+    ```
 
-```
-locas.cmd ...
-```
+    Use `locas.cmd -h` for more.
+  </p>
+</details>
 
-Use `locas.cmd -h` for more.
+<details>
+  <summary><h3>Window</h3></summary>
+  <p>
+    
+    ```
+    locas ...
+    ```
 
-### Window
-
-```
-locas ...
-```
-
-Use `locas -h` for more.
+    Use `locas -h` for more.
+  </p>
+</details>
 
 <br>
 

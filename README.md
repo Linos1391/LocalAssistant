@@ -115,10 +115,8 @@ pip install -r requirements.txt
   Then thing goes:
 
   ```
-  $new_entry = $PWD
-
   $old_path = [Environment]::GetEnvironmentVariable('path', 'user');
-  $new_path = $old_path + ';' + $new_entry
+  $new_path = $old_path + ';' + $PWD
   [Environment]::SetEnvironmentVariable('path', $new_path,'User');
   ```
 

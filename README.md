@@ -76,7 +76,7 @@ pip install -r requirements.txt
 <details>
   <summary><h3>Unix</h3></summary>
 
-  Go to your `LocalAssistant` directory (Where `requirements.txt` is stored). 
+  Go to your `LocalAssistant` directory (where `requirements.txt` is stored). 
 
   ```
   cd ...
@@ -106,7 +106,7 @@ pip install -r requirements.txt
 <details>
   <summary><h3>Window</h3></summary>
   
-  Open your Powershell. Go to your `LocalAssistant` directory (Where `requirements.txt` is stored). 
+  Open your Powershell. Go to your `LocalAssistant` directory (where `requirements.txt` is stored). 
     
   ```
   cd ...

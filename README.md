@@ -77,7 +77,13 @@ pip install -r requirements.txt
 
 ### Unix
 
-Go to your `LocalAssistant` directory (Where `requirements.txt` is stored). Then thing goes:
+Go to your `LocalAssistant` directory (Where `requirements.txt` is stored). 
+
+```
+cd ...
+```
+
+Then thing goes:
 
 ```
 chmod a+x locas.cmd
@@ -98,7 +104,13 @@ locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
 
 ### Window
 
-Open your Powershell. Go to your `LocalAssistant` directory (Where `requirements.txt` is stored). Then thing goes:
+Open your Powershell. Go to your `LocalAssistant` directory (Where `requirements.txt` is stored). 
+
+```
+cd ...
+```
+
+Then thing goes:
 
 ```
 $new_entry = $PWD

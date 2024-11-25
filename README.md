@@ -30,7 +30,7 @@ Visit [Pypi](https://pypi.org/project/LocalAssistant) and follow the instuctrion
 
 <br>
 
-# Download by source:
+# Download by GitHub:
 
 ## Table of contents
 

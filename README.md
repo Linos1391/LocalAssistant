@@ -76,6 +76,8 @@ pip install -r requirements.txt
 <details>
   <summary><h3>Unix</h3></summary>
 
+  ### Set up path:
+  
   Go to your `LocalAssistant` directory (where `requirements.txt` is stored). 
 
   ```
@@ -93,6 +95,8 @@ pip install -r requirements.txt
 
   <br>
 
+  ### Download starter model:
+
   Before doing anything, we should download a model first.
 
   ```
@@ -105,6 +109,8 @@ pip install -r requirements.txt
 
 <details>
   <summary><h3>Window</h3></summary>
+
+  ### Set up path:
   
   Open your Powershell. Go to your `LocalAssistant` directory (where `requirements.txt` is stored). 
     
@@ -123,6 +129,8 @@ pip install -r requirements.txt
   Then close your Powershell.
 
   <br>
+
+  ### Download starter model:
 
   Before doing anything, we should download a model first.
 

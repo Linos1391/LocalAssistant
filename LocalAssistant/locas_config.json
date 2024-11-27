@@ -5,6 +5,7 @@
         "Text_Generation": ""
     },
     "users": {
-        "current": ""
+        "current": "1",
+        "1": "default"
     }
 }

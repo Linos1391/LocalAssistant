@@ -4,7 +4,7 @@ import json
 from threading import Thread
 
 from huggingface_hub import login, logout
-from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
+from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer, BitsAndBytesConfig
 import torch
 
 from utils import LocalAssistantException, LocalAssistantConfig, MODEL_PATH, USER_PATH, LOGGER
@@ -212,6 +212,36 @@ def download_model_by_HuggingFace(
 # | locas chat ... |
 # +----------------+
 
+def _load_local_model(model_name: str) -> tuple:
+    path: str = MODEL_PATH / 'Text_Generation' / model_name # for better path
+    
+    CONFIG.get_config_file()
+    used_bit = CONFIG.DATA["load_in_bits"]
+    
+    # for O(1) I guess
+    if used_bit == '32':
+        return (
+            AutoModelForCausalLM.from_pretrained(path, local_files_only=True, use_safetensors=True, device_map="auto", torch_dtype=torch.float32),
+            AutoTokenizer.from_pretrained(path / 'Tokenizer', local_files_only=True, use_safetensors=True, device_map="auto", torch_dtype=torch.float32),
+        )
+    elif used_bit == '16': # float16 sucks so we use bfloat16
+        return (
+            AutoModelForCausalLM.from_pretrained(path, local_files_only=True, use_safetensors=True, device_map="auto", torch_dtype=torch.bfloat16),
+            AutoTokenizer.from_pretrained(path / 'Tokenizer', local_files_only=True, use_safetensors=True, device_map="auto", torch_dtype=torch.bfloat16),
+        )
+    elif used_bit == '8':
+        return (
+            AutoModelForCausalLM.from_pretrained(path, local_files_only=True, use_safetensors=True, device_map="auto", quantization_config=BitsAndBytesConfig(load_in_8bit=True)),
+            AutoTokenizer.from_pretrained(path / 'Tokenizer', local_files_only=True, use_safetensors=True, device_map="auto", quantization_config=BitsAndBytesConfig(load_in_8bit=True)),
+        )
+    elif used_bit == '4':
+        return (
+            AutoModelForCausalLM.from_pretrained(path, local_files_only=True, use_safetensors=True, device_map="auto", quantization_config=BitsAndBytesConfig(load_in_4bit=True)),
+            AutoTokenizer.from_pretrained(path / 'Tokenizer', local_files_only=True, use_safetensors=True, device_map="auto", quantization_config=BitsAndBytesConfig(load_in_4bit=True)),
+        )
+        
+    raise LocalAssistantException(f"Invalid bits! We found: {used_bit}")
+    
 def _check_for_exist_model(task: str) -> None:
     """
     Check for exist model. There is nothing we can do if the user chats without any models.
@@ -303,8 +333,7 @@ def chat_with_limited_lines(
     
     # load model
     LOGGER.debug('Begin to load models.')
-    text_generation_model = AutoModelForCausalLM.from_pretrained(MODEL_PATH / 'Text_Generation' / text_generation_model_name, use_safetensors=True, device_map="auto", torch_dtype=torch.bfloat16) #float32 is wasteful!
-    tokenizer_model = AutoTokenizer.from_pretrained(MODEL_PATH / 'Text_Generation' / text_generation_model_name / 'Tokenizer', use_safetensors=True, device_map="auto", torch_dtype=torch.bfloat16)
+    text_generation_model, tokenizer_model = _load_local_model(text_generation_model_name)
     LOGGER.debug('Done loading models.')
     
     print(f"\nStart chatting in {lines} lines with '{text_generation_model_name}' for text generation.\n\nType 'exit' to exit.", end='')
@@ -410,8 +439,7 @@ def chat_with_history(
     
     # load model
     LOGGER.debug('Begin to load models.')
-    text_generation_model = AutoModelForCausalLM.from_pretrained(MODEL_PATH / 'Text_Generation' / text_generation_model_name, use_safetensors=True, device_map="auto", torch_dtype=torch.bfloat16) #float32 is wasteful!
-    tokenizer_model = AutoTokenizer.from_pretrained(MODEL_PATH / 'Text_Generation' / text_generation_model_name / 'Tokenizer', use_safetensors=True, device_map="auto", torch_dtype=torch.bfloat16)
+    text_generation_model, tokenizer_model = _load_local_model(text_generation_model_name)
     LOGGER.debug('Done loading models.')
 
     chat_history: list = []

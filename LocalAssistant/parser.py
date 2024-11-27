@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(
 )
 
 # verbose.
-parser.add_argument('-v', '--verbose', action='count', help='show debug messages (Can be used multiple times for higher level: CRITICAL[v] -> DEBUG[vvvvv])', default=0)
+parser.add_argument('-v', '--verbose', action='count', help='show debug messages (Can be used multiple times for higher level: CRITICAL[v] -> DEBUG[vvvv])', default=0)
 
 # clean cache.
 parser.add_argument('-c', '--clean', action='store_true', help='delete all .cache directory (RECOMMEND USING WHEN DONE)')
@@ -166,7 +166,8 @@ subparser_start.add_argument('-t', '--max_token', metavar='TOKEN', action='store
 def main():
     parser_arg: argparse.Namespace = parser.parse_args()
 
-    logging.basicConfig(level=(5-parser_arg.verbose) * 10, format="%(asctime)s [%(levelname)s]: %(message)s")
+    verbose = 4 if parser_arg.verbose > 4 else parser_arg.verbose # limit to 4
+    logging.basicConfig(level=(5-verbose) * 10, format="%(asctime)s [%(levelname)s]: %(message)s")
 
     # get config data from locas_config.json file.
     CONFIG = LocalAssistantConfig()

@@ -241,7 +241,7 @@ def _load_local_model(model_name: str) -> tuple:
         )
         
     raise LocalAssistantException(f"Invalid bits! We found: {used_bit}")
-
+    
 def _check_for_exist_model(task: str) -> None:
     """
     Check for exist model. There is nothing we can do if the user chats without any models.

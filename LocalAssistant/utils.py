@@ -166,4 +166,5 @@ def self_destruction(choice: str):
             break    
         
         _real_remove(pathlib.Path(PROJECT_PATH))
-        
+
+

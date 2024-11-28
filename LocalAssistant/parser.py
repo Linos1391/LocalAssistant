@@ -112,7 +112,7 @@ subparser_config = subparser.add_parser(
     formatter_class=argparse.RawTextHelpFormatter,
 )
 del temp_string
-subparser_config_group = subparser_config.add_mutually_exclusive_group()
+subparser_config_group = subparser_config.add_mutually_exclusive_group(required=True)
 subparser_config_group.add_argument('-m', '--modify', action='store_true', help='Modify config value')
 subparser_config_group.add_argument('-s', '--show', action='store_true', help='Show config data')
 
@@ -166,6 +166,8 @@ subparser_self_destruction = subparser.add_parser(
     help='LocalAssistant\'s self-destruction.',
     description='LocalAssistant\'s self-destruction.',
 )
+
+subparser_self_destruction.add_argument('CHOICE', action='store', help="Choose 'github' or 'pip'.")
 
 # +-------------------+
 # | Process functions |
@@ -402,7 +404,12 @@ def main():
     # ____self-destruction function____
     
     if parser_arg.COMMAND == 'self-destruction':
-        self_destruction()
+        choice: str = parser_arg.CHOICE.lower()
+        
+        if choice not in ('github', 'pip'):
+            subparser_self_destruction.error(f'Invalid CHOICE: {choice}')
+        
+        self_destruction(choice)
 
 if __name__ == '__main__':
     main()

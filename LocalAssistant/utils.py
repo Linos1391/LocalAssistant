@@ -140,15 +140,30 @@ class LocalAssistantConfig:
         self.upload_config_file()
 
 # remove all
-def self_destruction():
+def self_destruction(choice: str):
     """
     Everything all needs self-destruction.
     """
-    option: str = input("Are you sure to remove LocalAssistant. There will be no turning back, as with data or model. Continue? [y/(n)]: ")
+    option: str = input(f"Are you sure to remove LocalAssistant ({choice}). There will be no turning back, as with data or model. Continue? [y/(n)]: ")
     if option.lower() != 'y':
         print('Self-destruction denied.')
         return
     print('Self-destruction...')
     
     # Locas, kys.
-    _real_remove(pathlib.Path(PROJECT_PATH).parent)
+    if choice == 'github':
+        _real_remove(pathlib.Path(PROJECT_PATH).parent)
+    elif choice == 'pip':
+        # delete dist info so you can download again
+        for item in os.scandir(pathlib.Path(PROJECT_PATH).parent):
+            if not item.is_dir():
+                continue
+            if not item.name.startswith('LocalAssistant-'):
+                continue
+            if not item.name.endswith('.dist-info'):
+                continue
+            _real_remove(item.path)
+            break    
+        
+        _real_remove(pathlib.Path(PROJECT_PATH))
+        

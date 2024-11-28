@@ -162,7 +162,7 @@ pip install -r requirements.txt
 
 **Warning:** This act will delete all LocalAssistant files.
 ```
-locas self-destruction
+locas self-destruction github
 ```
 
 <br>

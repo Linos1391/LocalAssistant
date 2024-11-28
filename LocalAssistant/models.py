@@ -15,7 +15,10 @@ class ModelTask:
     NONE = 0
     TEXT_GENERATION = 1
     # TODO - Add more model:
-    # - CROSS_ENCODER (Extract data from database)
+    # 1.n.n
+    # - SENTENCE TRANSFORMATION \ CROSS_ENCODER (Extract data from database)
+    # - Search google https://github.com/Nv7-GitHub/googlesearch
+    # 2.n.n
     # - TEXT_TO_SPEECH (Voice from AI)
     # - SPEECH_TO_TEXT (Voice chat)
     # - AUDIO_CLASSIFICATION (Multiple user voice chat - https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb) I will cook.
@@ -472,15 +475,15 @@ def chat_with_history(
             scanned = True
 
             if files == []:
-                print("There is no history yet, please create one.")
+                print("\nThere is no history yet, please create one.")
             else:
-                print("Choose from:")
+                print("\nChoose from:")
             for history in files:
                 if history.endswith('.json'):
                     print(f'    - {history.removesuffix('.json')}')
                     history_list.append(history.removesuffix('.json'))
 
-        print("Type 'create [name (Required, 1 WORD ONLY] [system_prompt (Optional)]' to create new history.")
+        print("\nType 'create [name (Required, 1 WORD ONLY] [system_prompt (Optional)]' to create new history.")
         print("Type 'delete [name (Required, 1 WORD ONLY]' to delete history.")
         print("Type 'exit' to exit.\n")
         command: str = input('>> ')
@@ -495,7 +498,8 @@ def chat_with_history(
                     chat_name = command.split()[1]
                 except:
                     print('locas start: error: require argument [name]\n')
-                    continue
+                    LOGGER.error('require argument [name]')
+                    exit()
                 
                 if user == 'default':
                     system_prompt = "You are an Assistant named LocalAssistant (Locas). Give the user the best supports as you can."
@@ -504,7 +508,8 @@ def chat_with_history(
             
             if chat_name in history_list: # throw error if create same name.
                 print(f"locas start: error: name {chat_name} is used\n")
-                continue
+                LOGGER.error(f"name {chat_name} is used")
+                exit()
             
             chat_history = [
                 {"role": "system", "content": system_prompt},
@@ -517,11 +522,13 @@ def chat_with_history(
                 chat_name = command.split()[1]
             except:
                 print('locas start: error: require argument [name]\n')
-                continue
+                LOGGER.error('require argument [name]')
+                exit()
             
             if chat_name not in history_list: # throw error if create same name.
                 print(f"locas start: error: name {chat_name} is not existed\n")
-                continue
+                LOGGER.error(f'name {chat_name} is not existed')
+                exit()
             
             os.remove(USER_PATH / user / 'history' / f'{chat_name}.json')
             print()
@@ -529,8 +536,9 @@ def chat_with_history(
         
         
         if command not in history_list:
-            print(f'locas start: error: No history name {command}')
-            continue
+            print(f'locas start: error: no history name {command}')
+            LOGGER.error(f'no history name {command}')
+            exit()
             
         chat_name = command
             

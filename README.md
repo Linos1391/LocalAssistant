@@ -165,6 +165,8 @@ pip install -r requirements.txt
 locas self-destruction
 ```
 
+<br>
+
 ## License
 
 [GNU GPLv3](LICENSE)

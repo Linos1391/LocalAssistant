@@ -343,6 +343,21 @@ def chat_with_limited_lines(
             break
         
         history.append(reply)
+        
+    # If user want to continue. Sometimes the conversation is cool I guess...
+    while True:
+        # If don't want to, end this loop
+        print("\n\n------------------------------------")
+        if input(f"Finished {lines} lines. Want to keep chatting with next 1 line? [y/n]: ").lower() != 'y': # Everything but 'y' is not allowed
+            print("------------------------------------")
+            break 
+        print("------------------------------------", end='')
+        
+        reply = _chat(history, text_generation_model, tokenizer_model, max_new_tokens)
+        if not reply: # User exit.
+            break
+        
+        history.append(reply)
 
 # +-----------------+
 # | locas start ... |

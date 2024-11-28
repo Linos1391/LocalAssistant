@@ -1,7 +1,7 @@
 import pathlib
-import shutil
 import json
 import os
+import stat 
 import logging
 
 # Path
@@ -18,12 +18,26 @@ class LocalAssistantException(Exception):
     """
     pass
 
+def _real_remove(path: str):
+    """
+    Something like shutil.rmtree but without access denied
+    """
+    for root, dirs, files in os.walk(path, topdown=False):
+        for name in files:
+            filename = os.path.join(root, name)
+            os.chmod(filename, stat.S_IWUSR)
+            os.remove(filename)
+        for name in dirs:
+            os.rmdir(os.path.join(root, name))
+    os.rmdir(path)      
+     
+
 def _clean_cache(path: str) -> None:
     """
     delete choosen .cache dir (Too dangerous to be used)
     """
     try:
-        shutil.rmtree(path)
+        _real_remove(path)
         LOGGER.debug(f'Cleaned {path}.')
     except: # it doesn't matter
         LOGGER.debug(f'Cannot find {path}, skipped.')
@@ -125,3 +139,16 @@ class LocalAssistantConfig:
                 
         self.upload_config_file()
 
+# remove all
+def self_destruction():
+    """
+    Everything all needs self-destruction.
+    """
+    option: str = input("Are you sure to remove LocalAssistant. There will be no turning back, as with data or model. Continue? [y/(n)]: ")
+    if option.lower() != 'y':
+        print('Self-destruction denied.')
+        return
+    print('Self-destruction...')
+    
+    # Locas, kys.
+    _real_remove(pathlib.Path(PROJECT_PATH).parent)

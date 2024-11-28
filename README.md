@@ -32,20 +32,6 @@ Visit [Pypi](https://pypi.org/project/LocalAssistant) and follow the instuctrion
 
 # Download by GitHub:
 
-## Table of contents
-
-1. [Installing](#installing)
-
-2. [Preparing](#preparing)
-
-3. [Running](#running)
-
-4. [License](#license)
-
-5. [Disclaimer](#disclaimer)
-
-<br>
-
 ## Installing
 
 1. Clone the repository.
@@ -171,6 +157,13 @@ pip install -r requirements.txt
 </details>
 
 <br>
+
+## Removing
+
+**Warning:** This act will delete all LocalAssistant files.
+```
+locas self-destruction
+```
 
 ## License
 

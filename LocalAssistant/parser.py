@@ -3,7 +3,7 @@ import os
 import shutil
 import logging
 
-from utils import MODEL_PATH, USER_PATH, LOGGER, LocalAssistantConfig, clean_all_cache, _print_dict
+from utils import MODEL_PATH, USER_PATH, LOGGER, LocalAssistantConfig, clean_all_cache, _print_dict, self_destruction
 from models import ModelTask, download_model_by_HuggingFace, chat_with_limited_lines, chat_with_history
 
 # +----------------------------+
@@ -158,6 +158,14 @@ subparser_start = subparser.add_parser(
 subparser_start.add_argument('-u', '--user', action='store', help='The user name', default='default')
 subparser_start.add_argument('-tgm', '--text_generation', metavar='MODEL', action='store', help='Use downloaded text generation model', default='')
 subparser_start.add_argument('-t', '--max_token', metavar='TOKEN', action='store', type=int, help='Max tokens to generate', default= 150)
+
+# ____self-destruction command____
+
+subparser_self_destruction = subparser.add_parser(
+    name='self-destruction',
+    help='LocalAssistant\'s self-destruction.',
+    description='LocalAssistant\'s self-destruction.',
+)
 
 # +-------------------+
 # | Process functions |
@@ -390,8 +398,11 @@ def main():
     
     if parser_arg.COMMAND == 'start':
         chat_with_history(parser_arg.text_generation, parser_arg.user, parser_arg.max_token)
-      
-
+    
+    # ____self-destruction function____
+    
+    if parser_arg.COMMAND == 'self-destruction':
+        self_destruction()
 
 if __name__ == '__main__':
     main()

@@ -121,7 +121,7 @@ pip install -r requirements.txt
   Before doing anything, we should download a model first.
 
   ```
-  locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 3
+  locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 1
   ```
   
 </details>

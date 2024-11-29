@@ -660,7 +660,9 @@ def chat_with_history(
         
         if command.split()[0].lower() == 'create':
             try:
-                chat_name, system_prompt = command.split(maxsplit=3)[1:3]
+                command_split = command.split()
+                chat_name = command_split[1]
+                system_prompt = ' '.join(command_split[2:])
             except ValueError:
                 try:
                     chat_name = command.split()[1]

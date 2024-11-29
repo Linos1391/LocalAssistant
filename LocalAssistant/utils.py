@@ -90,6 +90,7 @@ class LocalAssistantConfig:
             self.DATA = {
                 "hf_token": "", # Hugging Face token.
                 "load_in_bits": "8", # 'quantization' method. (So the device won't blow up)
+                "top_k_memory": "5", # num of memory to use
                 "models": { # the model that being use for chatting.
                     "Text_Generation": "",
                     "Sentence_Transformer": "",

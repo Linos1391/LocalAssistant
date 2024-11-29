@@ -263,6 +263,24 @@ def main():
                     CONFIG.upload_config_file()
                     continue
                 
+                if command == 'top_k_memory':
+                    print("'top_k_memory' let us know how much memory you want to recall.\n")
+                    print("Modify VALUE of 'top_k_memory' to ... (Type 'exit' to exit.)\n")
+                    command = input('>> ')
+                    print()
+                    
+                    # for exit.
+                    if command.lower() in ('exit', 'exit()'):
+                        continue
+                        
+                    if int(command) < 1:
+                        LOGGER.error(f"invalid VALUE: '{command}'")
+                        subparser_config.error(f"invalid VALUE: '{command}'")
+                            
+                    CONFIG.DATA.update({'top_k_memory': command})
+                    CONFIG.upload_config_file()
+                    continue
+                
                 if command == 'models':
                     while True:
                         _print_dict(CONFIG.DATA['models'])

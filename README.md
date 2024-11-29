@@ -97,6 +97,8 @@ pip install -r requirements.txt
   locas.cmd start
   ```
 
+  <br>
+
   ### Chatting with memory:
 
   **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
@@ -151,6 +153,8 @@ pip install -r requirements.txt
   ```
   locas start
   ```
+
+  <br>
 
   ### Chatting with memory:
 

@@ -158,6 +158,10 @@ subparser_start = subparser.add_parser(
 subparser_start.add_argument('-u', '--user', action='store', help='The user name', default='default')
 subparser_start.add_argument('-tgm', '--text_generation', metavar='MODEL', action='store', help='Use downloaded text generation model', default='')
 subparser_start.add_argument('-t', '--max_token', metavar='TOKEN', action='store', type=int, help='Max tokens to generate', default= 150)
+subparser_start.add_argument('-m', '--memory_enable', action='store_true', help='Enable memory function')
+subparser_start.add_argument('-stm', '--sentence_transformer', metavar='MODEL', action='store', help='Use downloaded sentence transformer model. (When memory enabled)', default='')
+subparser_start.add_argument('-tk', '--top_k_memory', metavar='TOP_K', action='store', type=int, help='How much memory you want to recall. (When memory enabled)', default= 0)
+subparser_start.add_argument('--encode-at-start', action='store_true', help='Encode memory before chating. (When memory enabled)')
 
 # ____self-destruction command____
 
@@ -191,7 +195,7 @@ def main():
     # ____download command function____
 
     if parser_arg.COMMAND == 'download':
-        if parser_arg.TASK not in ('1', 'Text_Generation'):
+        if parser_arg.TASK not in ('1', 'Text_Generation', '2', 'Sentence_Transformer'):
             LOGGER.error(f"invalid TASK: '{parser_arg.TASK}'")
             subparser_download.error(f"invalid TASK: '{parser_arg.TASK}'")
 
@@ -200,7 +204,7 @@ def main():
             parser_arg.token = CONFIG.DATA['hf_token']
 
         # convert string to int
-        if parser_arg.TASK in ('None', 'Text_Generation'):
+        if parser_arg.TASK in ('None', 'Text_Generation', 'Sentence_Transformer'):
             parser_arg.TASK = ModelTask.reverse_name_task(ModelTask, parser_arg.TASK)
         else:
             parser_arg.TASK = int(parser_arg.TASK)
@@ -260,6 +264,24 @@ def main():
                         subparser_config.error(f"invalid VALUE: {command}")
                             
                     CONFIG.DATA.update({'load_in_bits': command})
+                    CONFIG.upload_config_file()
+                    continue
+                
+                if command == 'top_k_memory':
+                    print("'top_k_memory' let us know how much memory you want to recall.\n")
+                    print("Modify VALUE of 'top_k_memory' to ... (Type 'exit' to exit.)\n")
+                    command = input('>> ')
+                    print()
+                    
+                    # for exit.
+                    if command.lower() in ('exit', 'exit()'):
+                        continue
+                        
+                    if int(command) < 1:
+                        LOGGER.error(f"invalid VALUE: '{command}'")
+                        subparser_config.error(f"invalid VALUE: '{command}'")
+                            
+                    CONFIG.DATA.update({'top_k_memory': command})
                     CONFIG.upload_config_file()
                     continue
                 
@@ -399,7 +421,8 @@ def main():
     # ____start command function____     
     
     if parser_arg.COMMAND == 'start':
-        chat_with_history(parser_arg.text_generation, parser_arg.user, parser_arg.max_token)
+        chat_with_history(parser_arg.text_generation, parser_arg.user, parser_arg.max_token, 
+                          parser_arg.memory_enable, parser_arg.sentence_transformer, parser_arg.top_k_memory, parser_arg.encode_at_start)
     
     # ____self-destruction function____
     

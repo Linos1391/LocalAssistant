@@ -90,8 +90,10 @@ class LocalAssistantConfig:
             self.DATA = {
                 "hf_token": "", # Hugging Face token.
                 "load_in_bits": "8", # 'quantization' method. (So the device won't blow up)
+                "top_k_memory": "5", # num of memory to use
                 "models": { # the model that being use for chatting.
                     "Text_Generation": "",
+                    "Sentence_Transformer": "",
                 },
                 "users": {
                     "current": "1", # the current user that being used.
@@ -110,6 +112,7 @@ class LocalAssistantConfig:
         _print_dict(self.DATA)
 
     def check_exist_user_physically(self, target) -> bool:
+        scanned = False
         for _, folders, _ in os.walk(USER_PATH / target):
             if scanned:
                 break

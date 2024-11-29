@@ -81,15 +81,40 @@ pip install -r requirements.txt
 
   <br>
 
-  ### Download starter model:
+  ### Chatting:
+
+  **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
 
   Before doing anything, we should download a model first.
 
   ```
-  locas.cmd download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 1
+  locas.cmd download -n qwen Qwen/Qwen2.5-1.5B-Instruct 1
   ```
 
+  We will use `locas start` for AI's memory.
+
+  
+  ```
+  locas.cmd start
+  ```
+
+  <br>
+
+  ### Chatting with memory:
+
   **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
+
+  Before doing anything, we should download a model first.
+
+  ```
+  locas.cmd download -n allmpnetv2 sentence-transformers/all-mpnet-base-v2 2
+  ```
+
+  Memory only allow on `locas start`, remember that. Anyway, let's dive into it!
+
+  ```
+  locas.cmd start -m
+  ```
 
 </details>
 
@@ -116,12 +141,34 @@ pip install -r requirements.txt
 
   <br>
 
-  ### Download starter model:
+  ### Chatting:
 
   Before doing anything, we should download a model first.
 
   ```
-  locas download -n Qwen Qwen/Qwen2.5-1.5B-Instruct 1
+  locas download -n qwen Qwen/Qwen2.5-1.5B-Instruct 1
+  ```
+
+  We will use `locas start` for AI's memory.
+
+  ```
+  locas start
+  ```
+
+  <br>
+
+  ### Chatting with memory:
+
+  Before doing anything, we should download a model first.
+
+  ```
+  locas download -n allmpnetv2 sentence-transformers/all-mpnet-base-v2 2
+  ```
+
+  Memory only allow on `locas start`, remember that. Anyway, let's dive into it!
+
+  ```
+  locas start -m
   ```
   
 </details>

@@ -191,7 +191,7 @@ def main():
     # ____download command function____
 
     if parser_arg.COMMAND == 'download':
-        if parser_arg.TASK not in ('1', 'Text_Generation'):
+        if parser_arg.TASK not in ('1', 'Text_Generation', '2', 'Sentence_Transformer'):
             LOGGER.error(f"invalid TASK: '{parser_arg.TASK}'")
             subparser_download.error(f"invalid TASK: '{parser_arg.TASK}'")
 
@@ -200,7 +200,7 @@ def main():
             parser_arg.token = CONFIG.DATA['hf_token']
 
         # convert string to int
-        if parser_arg.TASK in ('None', 'Text_Generation'):
+        if parser_arg.TASK in ('None', 'Text_Generation', 'Sentence_Transformer'):
             parser_arg.TASK = ModelTask.reverse_name_task(ModelTask, parser_arg.TASK)
         else:
             parser_arg.TASK = int(parser_arg.TASK)

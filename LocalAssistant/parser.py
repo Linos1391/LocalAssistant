@@ -158,6 +158,10 @@ subparser_start = subparser.add_parser(
 subparser_start.add_argument('-u', '--user', action='store', help='The user name', default='default')
 subparser_start.add_argument('-tgm', '--text_generation', metavar='MODEL', action='store', help='Use downloaded text generation model', default='')
 subparser_start.add_argument('-t', '--max_token', metavar='TOKEN', action='store', type=int, help='Max tokens to generate', default= 150)
+subparser_start.add_argument('-m', '--memory_enable', action='store_true', help='Enable memory function')
+subparser_start.add_argument('-stm', '--sentence_transformer', metavar='MODEL', action='store', help='Use downloaded sentence transformer model. (When memory enabled)', default='')
+subparser_start.add_argument('-tk', '--top_k_memory', metavar='TOP_K', action='store', type=int, help='How much memory you want to recall. (When memory enabled)', default= 0)
+subparser_start.add_argument('--encode-at-start', action='store_true', help='Encode memory before chating. (When memory enabled)')
 
 # ____self-destruction command____
 
@@ -417,7 +421,8 @@ def main():
     # ____start command function____     
     
     if parser_arg.COMMAND == 'start':
-        chat_with_history(parser_arg.text_generation, parser_arg.user, parser_arg.max_token)
+        chat_with_history(parser_arg.text_generation, parser_arg.user, parser_arg.max_token, 
+                          parser_arg.memory_enable, parser_arg.sentence_transformer, parser_arg.top_k_memory, parser_arg.encode_at_start)
     
     # ____self-destruction function____
     

@@ -277,7 +277,19 @@ def _check_for_exist_model(task: str) -> None:
 
 # Act with memory
 class LocalAssistantMemory:
-    def __init__(self):
+    """
+    Control users' memory.
+    """
+    def __init__(self, model_name):
+        if model_name != '':
+            try:
+                self.Model = SentenceTransformer(model_name_or_path=os.path.join(MODEL_PATH, 'Sentence_Transformer', model_name), local_files_only=True)
+            except Exception as e:
+                LOGGER.error(e)
+                raise e
+            
+            return
+        
         _check_for_exist_model('Sentence_Transformer')
         try:
             self.Model = SentenceTransformer(model_name_or_path=os.path.join(MODEL_PATH, 'Sentence_Transformer', CONFIG.DATA["models"]["Sentence_Transformer"]), local_files_only=True)
@@ -348,6 +360,9 @@ class LocalAssistantMemory:
     def ask_query(self, question: str, top_k: int = 5) -> list[str]:
         CONFIG.get_config_file()
         
+        if top_k == 0: # user didnt add top k when chat.
+            top_k=int(CONFIG.DATA["top_k_memory"])
+        
         # if you can't do it again.
         LOGGER.info('Loading memory from encoded data.')
         try:
@@ -414,17 +429,7 @@ def _load_local_model(model_name: str) -> tuple:
         
     raise LocalAssistantException(f"Invalid bits! We found: {used_bit}")
 
-def _chat(history: list, text_generation_model, tokenizer_model, max_new_tokens) -> dict | bool:
-    prompt: str = input('\n\n>> ')
-        
-    if prompt.lower() in ('exit', 'exit()'):
-        return False
-    
-    print()
-    
-    # append chat to history.
-    history.append({"role": "user", "content": prompt,})
-    
+def _chat(history: list, text_generation_model, tokenizer_model, max_new_tokens) -> dict:
     # format history.
     formatted_history = tokenizer_model.apply_chat_template(history, tokenize=False, add_generation_prompt=True)
     input_token = tokenizer_model(formatted_history, return_tensors="pt", add_special_tokens=False)        
@@ -479,12 +484,16 @@ def chat_with_limited_lines(
     text_generation_model, tokenizer_model = _load_local_model(text_generation_model_name)
     LOGGER.debug('Done loading models.')
     
+    # chat with limited lines
     print(f"\nStart chatting in {lines} lines with '{text_generation_model_name}' for text generation.\n\nType 'exit' to exit.", end='')
     for _ in range(lines):
-        reply = _chat(history, text_generation_model, tokenizer_model, max_new_tokens)
-        if not reply: # User exit.
-            break
+        prompt: str = input('\n\n>> ')
+        print()
         
+        # append chat to history.
+        history.append({"role": "user", "content": prompt,})
+        
+        reply = _chat(history, text_generation_model, tokenizer_model, max_new_tokens)
         history.append(reply)
         
     # If user want to continue. Sometimes the conversation is cool I guess...
@@ -496,11 +505,18 @@ def chat_with_limited_lines(
             break 
         print("------------------------------------", end='')
         
-        reply = _chat(history, text_generation_model, tokenizer_model, max_new_tokens)
-        if not reply: # User exit.
+        prompt: str = input('\n\n>> ')
+        print()
+    
+        if prompt.lower() in ('exit', 'exit()'):
             break
         
+        # append chat to history.
+        history.append({"role": "user", "content": prompt,})
+        
+        reply = _chat(prompt, history, text_generation_model, tokenizer_model, max_new_tokens)
         history.append(reply)
+    
 
 # +-----------------+
 # | locas start ... |
@@ -510,6 +526,10 @@ def chat_with_history(
         text_generation_model_name: str = '',
         user: str = 'default',
         max_new_tokens: int = 150,
+        memory_enable: bool = False,
+        sentence_transformer_model_name: str = '',
+        top_k_memory: int = 0,
+        encode_at_start: bool = False,
     ):
     """
     Chat with models for limited lines. Recommend for fast chat as non-user. (no history saved)
@@ -517,6 +537,10 @@ def chat_with_history(
         text_generation_model_name (str): name of the text generation model, get from config file if got blank.
         user (str): chat by user, default as 'default'.
         max_new_tokens (int): max tokens to generate, default as 50.
+        memory_enable (bool): enable memory function, default as False.
+        sentence_transformer_model_name (str): name of the sentence transformer model, get from config file if got blank. (only memory_enable == True)
+        top_k_memory (int): how much memory you want to recall. (only memory_enable == True)
+        encode_at_start (bool): encode memory before chating. (only memory_enable == True)
     """
 
     CONFIG.get_config_file()
@@ -597,6 +621,11 @@ def chat_with_history(
     # load model
     LOGGER.debug('Begin to load models.')
     text_generation_model, tokenizer_model = _load_local_model(text_generation_model_name)
+    if memory_enable:
+        Memory = LocalAssistantMemory(sentence_transformer_model_name)
+        if encode_at_start:
+            LOGGER.info('User choose to encode at start.')
+            Memory.encode_memory()
     LOGGER.debug('Done loading models.')
 
     chat_history: list = []
@@ -675,8 +704,8 @@ def chat_with_history(
         
         
         if command not in history_list:
-            print(f'locas start: error: no history name {command}')
             LOGGER.error(f'no history name {command}')
+            print(f'locas start: error: no history name {command}\n')
             exit()
             
         chat_name = command
@@ -692,12 +721,56 @@ def chat_with_history(
         return # user typed 'exit'
     
     # chat with history.
-    print(f"Start chatting as user '{user}' with '{chat_name}' for history, '{text_generation_model_name}' for text generation.\n\nType 'exit' to exit.", end='')
+    line_print: str = f"Start chatting as user '{user}' with '{chat_name}' for history, '{text_generation_model_name}' for text generation"
+    if memory_enable:
+        line_print += f", '{sentence_transformer_model_name}' for sentence transformer"
+    print(f"{line_print}.\n\nType 'exit' to exit.", end='')
+    
     while True:
-        reply = _chat(chat_history, text_generation_model, tokenizer_model, max_new_tokens)
+        prompt: str = input('\n\n>> ')
+        print()
         
-        if not reply: # User exit.
-            break
+        if prompt.lower() in ('exit', 'exit()'):
+            if memory_enable:
+                print('Encoding the our story...')
+                Memory.encode_memory()
+            exit()
+            
+        # append chat to history.
+        chat_history.append({"role": "user", "content": prompt,})
+        
+        if memory_enable:
+            memories: list = Memory.ask_query(prompt, top_k_memory)
+            print("Your memories that are related to the prompt:")
+            for index, memory in enumerate(memories):
+                print(f'    {index+1}. {memory}')
+            while True:
+                mem_to_use: str = ''
+                for index in input("Memory to chat with ('Eg: 1 3 4 6' or leave blank to not use): ").split():
+                    try: # never understimate your user.
+                        index = int(index) - 1
+                        mem_to_use += f"\n- {memories[index]}"
+
+                    except ValueError: # 1st line
+                        LOGGER.error('user used memory can\'t convert into interger')
+                        print('locas chat: error: user used memory can\'t convert into interger\n')
+                        mem_to_use = 'loop'
+                        break
+
+                    except IndexError: # 2nd line
+                        LOGGER.error('user used unknown memory')
+                        print('locas chat: error: user used unknown memory\n')
+                        mem_to_use = 'loop'
+                        break
+                if mem_to_use != 'loop':
+                    print()
+                    break
+                
+
+            if mem_to_use not in ('', 'loop'): # got memory
+                prompt += f'Memory about our last conversation:{mem_to_use}'
+        
+        reply = _chat(chat_history, text_generation_model, tokenizer_model, max_new_tokens)
         
         chat_history.append(reply)
         

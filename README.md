@@ -24,6 +24,14 @@ This AI is designed to be used in CLI.
 
 </div>
 
+# Which one should I use?
+- [Pypi version](#download-by-pypi-recommended) is great, it works how I want. But if you want projects to be organized by using Anaconda / Docker... It sucks.
+- [Github version](#download-by-github) solves that by using PATH, then user may modify `locas.cmd` file to use Anaconda. However, Unix user have to type `locas.cmd` instead of `locas`.
+
+**Summary:** Window user may use Github version while Pypi is for Unix user. I still recommended Pypi though.
+
+<br>
+
 # Download by Pypi: (Recommended)
 
 Visit [Pypi](https://pypi.org/project/LocalAssistant) and follow the instuctrion.

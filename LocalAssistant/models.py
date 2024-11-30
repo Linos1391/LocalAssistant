@@ -667,7 +667,7 @@ def chat_with_history(
                 try:
                     chat_name = command.split()[1]
                 except:
-                    print('locas start: error: require argument [name]\n')
+                    print('locas start: error: require argument [name]')
                     LOGGER.error('require argument [name]')
                     exit()
                 
@@ -677,7 +677,7 @@ def chat_with_history(
                     system_prompt = f"You are an Assistant named LocalAssistant (Locas) who serves the user called {user}. Give {user} the best supports as you can."
             
             if chat_name in history_list: # throw error if create same name.
-                print(f"locas start: error: name {chat_name} is used\n")
+                print(f"locas start: error: name {chat_name} is used")
                 LOGGER.error(f"name {chat_name} is used")
                 exit()
             
@@ -691,12 +691,12 @@ def chat_with_history(
             try:
                 chat_name = command.split()[1]
             except:
-                print('locas start: error: require argument [name]\n')
+                print('locas start: error: require argument [name]')
                 LOGGER.error('require argument [name]')
                 exit()
             
             if chat_name not in history_list: # throw error if create same name.
-                print(f"locas start: error: name {chat_name} is not existed\n")
+                print(f"locas start: error: name {chat_name} is not existed")
                 LOGGER.error(f'name {chat_name} is not existed')
                 exit()
             
@@ -707,7 +707,7 @@ def chat_with_history(
         
         if command not in history_list:
             LOGGER.error(f'no history name {command}')
-            print(f'locas start: error: no history name {command}\n')
+            print(f'locas start: error: no history name {command}')
             exit()
             
         chat_name = command

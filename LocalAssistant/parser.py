@@ -431,6 +431,7 @@ def main():
         
         if choice not in ('github', 'pip'):
             subparser_self_destruction.error(f'Invalid CHOICE: {choice}')
+            LOGGER.error(f'Invalid CHOICE: {choice}')
         
         self_destruction(choice)
 

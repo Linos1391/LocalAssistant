@@ -30,27 +30,6 @@ def _real_remove(path: str):
         for name in dirs:
             os.rmdir(os.path.join(root, name))
     os.rmdir(path)      
-     
-
-def _clean_cache(path: str) -> None:
-    """
-    delete choosen .cache dir (Too dangerous to be used)
-    """
-    try:
-        _real_remove(path)
-        LOGGER.debug(f'Cleaned {path}.')
-    except: # it doesn't matter
-        LOGGER.debug(f'Cannot find {path}, skipped.')
-
-def clean_all_cache() -> None:
-    """
-    delete all .cache dir
-    """
-    for path in (
-        MODEL_PATH / '.cache',
-    ):
-        _clean_cache(path)
-        LOGGER.info('Cleared all cache')
         
 # it happens that i'm too smart.
 def _print_dict(data: dict, level: int=0):

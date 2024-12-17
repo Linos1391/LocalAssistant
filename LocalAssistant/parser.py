@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-v', '--verbose', action='count', help='show debug messages (Can be used multiple times for higher level: CRITICAL[v] -> DEBUG[vvvv])', default=0)
 
 # version.
-parser.add_argument('-V', '--version', action='version', version='LocalAssistant 0.1.0dev')
+parser.add_argument('-V', '--version', action='version', version='LocalAssistant 1.0.2')
 
 subparser = parser.add_subparsers(
     title='commands', 

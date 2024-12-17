@@ -18,9 +18,13 @@
 [python-shield]: https://img.shields.io/badge/python-3.10+-yellow
 [python-url]: https://www.python.org/downloads/
 
-![LocalAssistant](asset/LocalAssistant.png)
+![icon](asset/icon.png)
 
-This AI is designed to be used in CLI.
+**Your CLI friend.**
+
+<br>
+
+![LocalAssistant](asset/LocalAssistant.png)
 
 </div>
 

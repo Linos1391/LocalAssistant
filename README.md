@@ -4,6 +4,8 @@
 
 **Locas - your local assistant**
 
+![icon](asset/icon.png)
+
 [![][latest-release-shield]][latest-release-url]
 [![][latest-commit-shield]][latest-commit-url]
 [![][pypi-shield]][pypi-url]

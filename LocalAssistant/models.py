@@ -52,7 +52,7 @@ def _download_with_login(hf_token: str, huggingface_path: str, AutoModel):
     
     try:
         login(hf_token)
-        model = AutoModel.from_pretrained(pretrained_model_name_or_path=huggingface_path, use_safetensors=True, device_map="auto", cache_dir=MODEL_PATH / '.cache')
+        model = AutoModel.from_pretrained(pretrained_model_name_or_path=huggingface_path, use_safetensors=True, device_map="auto")
     except Exception as e:
         return e
     
@@ -62,16 +62,6 @@ def _download_with_login(hf_token: str, huggingface_path: str, AutoModel):
         return e
     
     return model  
-
-def _check_cache_dir() -> None:
-    """
-    Check if .cache dir is made yet, it not, create one.
-    """
-    LOGGER.debug('Check .cache dir')
-    try:
-        os.makedirs(MODEL_PATH / '.cache')
-    except: # ignore if it existed
-        pass
       
 def _save_model(model, path: str) -> None:
     """
@@ -175,10 +165,7 @@ def download_model_by_HuggingFace(
     if task == ModelTask.NONE:
         return
     
-    # Download model from huggingface path (We only use safetensors) and save to .cache
-    
-    # check .cache dir
-    _check_cache_dir()
+    # Download model from huggingface path.
 
     # if user use 'https' path, convert to normal one.
     huggingface_path = huggingface_path.removeprefix('https://huggingface.co/')
@@ -190,8 +177,8 @@ def download_model_by_HuggingFace(
             if hf_token == '': # by default, do not use token.
                 LOGGER.debug('Not use token.')
                 try: 
-                    tokenizer_model = AutoTokenizer.from_pretrained(pretrained_model_name_or_path=huggingface_path, use_safetensors=True, device_map="auto", cache_dir=MODEL_PATH / '.cache')
-                    text_generation_model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path=huggingface_path, use_safetensors=True, device_map="auto", cache_dir=MODEL_PATH / '.cache')
+                    tokenizer_model = AutoTokenizer.from_pretrained(pretrained_model_name_or_path=huggingface_path, use_safetensors=True, device_map="auto")
+                    text_generation_model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path=huggingface_path, use_safetensors=True, device_map="auto")
                 except Exception as e:
                     LOGGER.error(f'Can not download text generation model due to: {e}')
                     raise e
@@ -221,7 +208,7 @@ def download_model_by_HuggingFace(
             if hf_token == '': # by default, do not use token.
                 LOGGER.debug('Not use token.')
                 try: 
-                    sentence_transformer_model = SentenceTransformer(model_name_or_path=huggingface_path, cache_folder=MODEL_PATH / '.cache')
+                    sentence_transformer_model = SentenceTransformer(model_name_or_path=huggingface_path)
                 except Exception as e:
                     LOGGER.error(f'Can not download sentence transformer model due to: {e}')
                     raise e
@@ -229,7 +216,7 @@ def download_model_by_HuggingFace(
             else: # use token.
                 LOGGER.debug(f'Use provided token: {hf_token}')
                 try: 
-                    sentence_transformer_model = SentenceTransformer(model_name_or_path=huggingface_path, token=hf_token, cache_folder=MODEL_PATH / '.cache')
+                    sentence_transformer_model = SentenceTransformer(model_name_or_path=huggingface_path, token=hf_token)
                 except Exception as e:
                     LOGGER.error(f'Can not download sentence transformer model due to: {e}')
                     raise e

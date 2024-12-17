@@ -3,7 +3,7 @@ import os
 import shutil
 import logging
 
-from utils import MODEL_PATH, USER_PATH, LOGGER, LocalAssistantConfig, clean_all_cache, _print_dict, self_destruction
+from utils import MODEL_PATH, USER_PATH, LOGGER, LocalAssistantConfig, _print_dict, self_destruction
 from models import ModelTask, download_model_by_HuggingFace, chat_with_limited_lines, chat_with_history
 
 # +----------------------------+
@@ -17,9 +17,6 @@ parser = argparse.ArgumentParser(
 
 # verbose.
 parser.add_argument('-v', '--verbose', action='count', help='show debug messages (Can be used multiple times for higher level: CRITICAL[v] -> DEBUG[vvvv])', default=0)
-
-# clean cache.
-parser.add_argument('-c', '--clean', action='store_true', help='delete all .cache directory (RECOMMEND USING WHEN DONE)')
 
 # version.
 parser.add_argument('-V', '--version', action='version', version='LocalAssistant 0.1.0dev')
@@ -186,11 +183,6 @@ def main():
     # get config data from locas_config.json file.
     CONFIG = LocalAssistantConfig()
     CONFIG.get_config_file()
-    
-    # ____clean cache function____
-
-    if parser_arg.clean:
-        clean_all_cache()
 
     # ____download command function____
 

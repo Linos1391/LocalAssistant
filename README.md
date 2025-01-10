@@ -22,6 +22,8 @@
 
 **Your CLI friend.**
 
+</div>
+
 <br>
 
 ```
@@ -47,8 +49,6 @@ commands:
     start             Chat with models using history.
     self-destruction  LocalAssistant's self-destruction.
 ```
-
-</div>
 
 # Installing
 

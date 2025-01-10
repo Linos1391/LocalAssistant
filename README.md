@@ -18,220 +18,83 @@
 [python-shield]: https://img.shields.io/badge/python-3.10+-yellow
 [python-url]: https://www.python.org/downloads/
 
-![icon](asset/icon.png)
+![icon](https://github.com/Linos1391/LocalAssistant/blob/main/asset/icon.png?raw=true)
 
 **Your CLI friend.**
 
 <br>
 
-![LocalAssistant](asset/LocalAssistant.png)
+```
+>> locas -h
+
+usage: locas [-h] [-v] [-V] COMMAND ...
+
+LocalAssistant (locas) is an AI designed to be used in CLI.
+
+options:
+  -h, --help          show this help message and exit
+  -v, --verbose       show debug messages (Can be used multiple times for higher level: CRITICAL[v] -> DEBUG[vvvv])
+  -V, --version       show program's version number and exit
+
+commands:
+  built-in commands (type 'locas COMMAND -h' for better description)
+
+  COMMAND
+    download          Download models from Hugging Face
+    config            Configurate LocalAssistant.
+    user              Config user.
+    chat              Chat with models for limited lines. (no history saved)
+    start             Chat with models using history.
+    self-destruction  LocalAssistant's self-destruction.
+```
 
 </div>
 
-# Which one should I use?
-- [Pypi version](#download-by-pypi-recommended) is great, it works how I want. But if you want projects to be organized by using Anaconda / Docker... It sucks.
-- [Github version](#download-by-github) solves that by using PATH, then user may modify `locas.cmd` file to use Anaconda. However, Unix user have to type `locas.cmd` instead of `locas`.
+# Installing
 
-**Summary:** Window user may use Github version while Pypi is for Unix user. I still recommended Pypi though.
+Visit [here](https://github.com/Linos1391/LocalAssistant/releases) and download `locas_installer.py`. And let magic happens.
+```
+python3 locas_installer.py
+```
+
+Let's try if it works:
+```
+locas -h
+```
+*Unix user may try `locas.cmd -h` first*
 
 <br>
 
-# Download by Pypi: (Recommended)
+# Preparing
 
-Visit [Pypi](https://pypi.org/project/LocalAssistant) and follow the instuctrion.
+To chat, we will need model! You can download whatever you like. Below is my recommend for first use (Like a starter pack.)
 
-<br>
-
-# Download by GitHub:
-
-## Installing
-
-1. Clone the repository.
-
+For text generation:
 ```
-git clone https://github.com/Linos1391/LocalAssistant.git
-cd LocalAssistant
+locas download -n qwen Qwen/Qwen2.5-1.5B-Instruct 1
 ```
 
-2. Visit [PyTorch](https://pytorch.org/get-started/locally/) and download the version for your device.
-
+For sentence transformer:
 ```
-# Example: (Me using WINDOW with CUDA 12.4)
-
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-```
-
-3. Install the required python packages.
-
-```
-pip install -r requirements.txt
+locas download -n allmpnetv2 sentence-transformers/all-mpnet-base-v2 2
 ```
 
 <br>
 
-## Preparing 
+# Removing
 
-<details>
-  <summary><h3>Unix</h3></summary>
-
-  ### Set up path:
-  
-  Go to your `LocalAssistant` directory (where `requirements.txt` is stored). 
-
-  ```
-  cd ...
-  ```
-
-  Then thing goes:
-
-  ```
-  chmod a+x locas.cmd
-  echo 'export LocalAssistant=$PWD
-  export PATH=$LocalAssistant:$PATH' >> ~/.bash_profile
-  source ~/.bash_profile
-  ```
-
-  <br>
-
-  ### Chatting:
-
-  **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
-
-  Before doing anything, we should download a model first.
-
-  ```
-  locas.cmd download -n qwen Qwen/Qwen2.5-1.5B-Instruct 1
-  ```
-
-  We will use `locas start` for AI's memory.
-
-  
-  ```
-  locas.cmd start
-  ```
-
-  <br>
-
-  ### Chatting with memory:
-
-  **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
-
-  Before doing anything, we should download a model first.
-
-  ```
-  locas.cmd download -n allmpnetv2 sentence-transformers/all-mpnet-base-v2 2
-  ```
-
-  Memory only allow on `locas start`, remember that. Anyway, let's dive into it!
-
-  ```
-  locas.cmd start -m
-  ```
-
-</details>
-
-<details>
-  <summary><h3>Window</h3></summary>
-
-  ### Set up path:
-  
-  Open your Powershell. Go to your `LocalAssistant` directory (where `requirements.txt` is stored). 
-    
-  ```
-  cd ...
-  ```
-    
-  Then thing goes:
-
-  ```
-  $old_path = [Environment]::GetEnvironmentVariable('path', 'user');
-  $new_path = $old_path + ';' + $PWD
-  [Environment]::SetEnvironmentVariable('path', $new_path,'User');
-  ```
-
-  Then close your Powershell.
-
-  <br>
-
-  ### Chatting:
-
-  Before doing anything, we should download a model first.
-
-  ```
-  locas download -n qwen Qwen/Qwen2.5-1.5B-Instruct 1
-  ```
-
-  We will use `locas start` for AI's memory.
-
-  ```
-  locas start
-  ```
-
-  <br>
-
-  ### Chatting with memory:
-
-  Before doing anything, we should download a model first.
-
-  ```
-  locas download -n allmpnetv2 sentence-transformers/all-mpnet-base-v2 2
-  ```
-
-  Memory only allow on `locas start`, remember that. Anyway, let's dive into it!
-
-  ```
-  locas start -m
-  ```
-  
-</details>
-
-<br>
-
-## Running
-
-#### If you're using Anaconde or Docker, modify [locas.cmd](locas.cmd) file.
-
-<details>
-  <summary><h3>Unix</h3></summary>
-  
-  **Notice:** Due to using .cmd, Unix user have to type 'locas.cmd' instead of 'locas'.
-
-  ```
-  locas.cmd ...
-  ```
-
-  Use `locas.cmd -h` for more.
-    
-</details>
-
-<details>
-  <summary><h3>Window</h3></summary>
-  
-  ```
-  locas ...
-  ```
-
-  Use `locas -h` for more.
-  
-</details>
-
-<br>
-
-## Removing
-
-**Warning:** This act will delete all LocalAssistant files.
 ```
-locas self-destruction github
+locas self-destruction
 ```
 
 <br>
 
-## License
+# License
 
 [GNU GPLv3](LICENSE)
 
 <br>
 
-## Disclaimer
+# Disclaimer
 
 This AI was designed to communicating with Hugging Face models in CLI. Please do not use this AI for any unethical reasons. Any damages from abusing this application will not be the responsibility of the author.

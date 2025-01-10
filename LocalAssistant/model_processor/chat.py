@@ -3,18 +3,17 @@
 import logging
 from threading import Thread
 
-import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM,\
     TextIteratorStreamer, BitsAndBytesConfig
 
-from ..utils import UtilsExtension, ConfigManager, LocalAssistantException
+from ..utils import ConfigManager, LocalAssistantException
 from .memory import MemoryExtension
 
 class ChatExtension():
     """Chat extention for LocalAssistant."""
     def __init__(self):
         self.config = ConfigManager()
-        self.utils_ext = UtilsExtension()
+        self.utils_ext = self.config.utils_ext
 
     def _load_local_model(self, model_name: str) -> tuple:
         """
@@ -30,24 +29,23 @@ class ChatExtension():
             tuple: (text generation, tokenizer)
         """
         path: str = self.utils_ext.model_path / 'Text_Generation' / model_name
+        kwarg = dict(local_files_only=True,use_safetensors=True, device_map="auto",)
 
         used_bit = self.config.data["load_in_bits"]
         match used_bit:
-            case '32':
-                kwarg = {'torch_dtype': torch.float32}
-            case '16': # float16 sucks so we use bfloat16
-                kwarg = {'torch_dtype': torch.bfloat16}
             case '8':
-                kwarg = {'quantization_config': BitsAndBytesConfig(load_in_8bit=True)}
+                kwarg.update({'quantization_config': BitsAndBytesConfig(load_in_8bit=True)})
             case '4':
-                kwarg = {'quantization_config': BitsAndBytesConfig(load_in_4bit=True)}
+                kwarg.update({'quantization_config': BitsAndBytesConfig(load_in_4bit=True)})
+            case 'None':
+                pass
             case _:
                 logging.error('Invalid bits! We found: %s.', used_bit)
                 raise LocalAssistantException(f"Invalid bits! We found: {used_bit}.")
-        kwarg.update(dict(local_files_only=True,use_safetensors=True, device_map="auto",))
+        kwarg.update()
         return (
-            AutoModelForCausalLM.from_pretrained(path, kwargs=kwarg),
-            AutoTokenizer.from_pretrained(path, kwargs=kwarg)
+            AutoModelForCausalLM.from_pretrained(path, **kwarg ),
+            AutoTokenizer.from_pretrained(path / 'Tokenizer', **kwarg)
         )
 
     @staticmethod
@@ -56,6 +54,7 @@ class ChatExtension():
             text_generation_model: AutoModelForCausalLM,
             tokenizer_model: AutoTokenizer,
             max_new_tokens: int,
+            **kwargs,
         ) -> dict:
         """
         Simple chat system.
@@ -65,13 +64,17 @@ class ChatExtension():
             text_generation_model (AutoModelForCausalLM): text generation model.
             tokenizer_model (AutoTokenizer): tokenizer of text generation model.
             max_new_tokens (int): max tokens to generate.
+            **kwargs: arguments for `apply_chat_template`. Used for memory, etc.
 
         Returns:
             dict: assistant's whole output.
         """
         # format history.
         format_history = tokenizer_model\
-            .apply_chat_template(history, tokenize=False, add_generation_prompt=True)
+            .apply_chat_template(history, tokenize=False, add_generation_prompt=True, kwargs=kwargs)
+
+        print(format_history) # - TODO
+
         input_token = tokenizer_model(format_history, return_tensors="pt", add_special_tokens=False)
 
         # move token to device.
@@ -170,10 +173,6 @@ for text generation.\n\nType 'exit' to exit.", end='')
             reply = self._chat(history, text_generation_model, tokenizer_model, max_new_tokens)
             history.append(reply)
 
-    # +-----------------+
-    # | locas start ... |
-    # +-----------------+
-
     def chat_with_history(
             self,
             text_generation_model_name: str = '',
@@ -251,37 +250,13 @@ use %s instead.', sentence_transformer_model_name)
             # append chat to history.
             chat_history.append({"role": "user", "content": prompt,})
 
+            kwargs = {}
             if memory_enable:
                 memories: list = memory_ext.ask_query(prompt, top_k_memory)
-                print("Your memories that are related to the prompt:")
-                for index, memory in enumerate(memories):
-                    print(f'    {index+1}. {memory}')
-                while True:
-                    mem_to_use: str = ''
-                    for index in input("Memory to chat with ('1 3 4 6' or leave blank): ").split():
-                        try: # never understimate your user.
-                            index = int(index) - 1
-                            mem_to_use += f"\n- {memories[index]}"
+                kwargs = {'Memory': memories}
 
-                        except ValueError: # 1st line
-                            logging.error('User did not type interger.')
-                            print('ERROR: User used memory can\'t convert into interger.\n')
-                            mem_to_use = 'loop'
-                            break
-
-                        except IndexError: # 2nd line
-                            logging.error('User used unknown memory.')
-                            print('ERROR: User used unknown memory.\n')
-                            mem_to_use = 'loop'
-                            break
-                    if mem_to_use != 'loop':
-                        print()
-                        break
-
-                if mem_to_use not in ('', 'loop'): # got memory
-                    prompt += f'Memory about our last conversation:{mem_to_use}'
-
-            reply = self._chat(chat_history, text_generation_model, tokenizer_model, max_new_tokens)
+            reply = self._chat(chat_history, text_generation_model,\
+                tokenizer_model, max_new_tokens, **kwargs)
 
             chat_history.append(reply)
 

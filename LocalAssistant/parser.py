@@ -12,7 +12,7 @@ PARSER.add_argument('-v', '--verbose', action='count', help='show debug \
 messages (Can be used multiple times for higher level: CRITICAL[v] -> DEBUG[vvvv])', default=0)
 
 # version.
-PARSER.add_argument('-V', '--version', action='version', version='LocalAssistant 1.0.2')
+PARSER.add_argument('-V', '--version', action='version', version='LocalAssistant 1.0.3rc1')
 
 subparser = PARSER.add_subparsers(
     title='commands',
@@ -39,7 +39,7 @@ Model\'s task. Choose from:
     - 'Text_Generation' (or '1'): Download text generation model.
     - 'Sentence_Transformer' (or '2'): Download sentence transformer model.
 """
-subparser_download.add_argument('TASK', action='store', help=TEMP_STRING, required=True)
+subparser_download.add_argument('TASK', action='store', help=TEMP_STRING, default=0)
 del TEMP_STRING
 
 subparser_download.add_argument('-n', '--name', action='store',\
@@ -61,31 +61,32 @@ Configurate LocalAssistant.
 
 'hf_token': '',
 'load_in_bits': '8',
+'top_k_memory': '5',
+'stopwords_lang': 'english',
 'models': {
    'Text_Generation': 'Qwen',
-   'Tokenizer': 'Qwen'
+   'Sentence_Transformer': 'base',
 },
-'users': 'default'
-},
+'users': 'default',
 Type KEY to modify KEY's VALUE. Type 'exit' to exit.
 
 >> load_in_bits
 
-'load_in_bits' is for 'quantization' method. if the VALUE is 16, then model is load in 16 bits (2 bytes) per parameters. Choose from: '4', '8', '16', '32'.
+'load_in_bits' is for 'quantization' method. If the VALUE is 8, then model is load in 8 bits (1 bytes) per parameters. Choose from: '4', '8', 'None'.
 
 Modify VALUE of 'load_in_bits' to ... (Type 'exit' to exit.)
 
->> 16
+>> None
 
 'hf_token': '',
-'load_in_bits': '16',
+'load_in_bits': 'None',
+'top_k_memory': '5',
+'stopwords_lang': 'english',
 'models': {
    'Text_Generation': 'Qwen',
-   'Tokenizer': 'Qwen'
+   'Sentence_Transformer': 'base',
 },
-'users': 'default'
-   },
-},
+'users': 'default',
 Type KEY to modify KEY's VALUE. Type 'exit' to exit.
 
 >> exit
@@ -197,10 +198,5 @@ subparser_self_destruction = subparser.add_parser(
     description='LocalAssistant\'s self-destruction.',
 )
 
-subparser_self_destruction_group = subparser_config.add_mutually_exclusive_group(required=True)
-
-subparser_self_destruction_group.add_argument('-p', '--pypi', action='store_true',\
-    help='Using PyPI version.')
-
-subparser_self_destruction_group.add_argument('-g', '--github', action='store_true',\
-    help='Using Github version.')
+subparser_self_destruction.add_argument('-a', '--all', action='store_true',\
+    help='Delete the whole folder (included models, history, etc).')

@@ -5,7 +5,6 @@ import json
 import os
 import stat
 import logging
-from typing import Literal
 
 ###### - Add more model:
 # 1.n.n
@@ -31,8 +30,9 @@ class UtilsExtension:
 
         # path and stuffs
         self.project_path: str = pathlib.Path(__file__).parent
-        self.model_path: str = self.project_path / 'models'
-        self.user_path: str = self.project_path / 'users'
+        self.stopword_path: str = self.project_path / 'nltk_stopwords'
+        self.model_path: str = 'models'
+        self.user_path: str = 'users'
 
     @staticmethod
     def _real_remove(path: str):
@@ -57,9 +57,8 @@ class UtilsExtension:
         Returns:
             dict: file's data.
         """
-        data: str = ''
         with open(path, mode="r", encoding="utf-8") as read_file:
-            data = json.load(read_file)
+            data: str = json.load(read_file)
             read_file.close()
         return data
 
@@ -88,9 +87,9 @@ class UtilsExtension:
                 print(level*'   ' + "},")
 
     # remove all
-    def self_destruction(self, choice: Literal['github', 'pypi']):
+    def self_destruction(self, delete_all: bool = False):
         """Everything all needs self-destruction."""
-        option: str = input(f"Are you sure to remove LocalAssistant ({choice}).\
+        option: str = input("Are you sure to remove LocalAssistant. \
 There will be no turning back, as with data or model. Continue? [y/(n)]: ")
         if option.lower() != 'y':
             print('Self-destruction denied.')
@@ -98,21 +97,13 @@ There will be no turning back, as with data or model. Continue? [y/(n)]: ")
         print('Self-destruction...')
 
         # Locas, kys.
-        if choice == 'github':
-            self._real_remove(pathlib.Path(self.project_path).parent)
-        elif choice == 'pypi':
-            # delete dist info so you can download again
-            for item in os.scandir(pathlib.Path(self.project_path).parent):
-                if not item.is_dir():
-                    continue
-                if not item.name.startswith('LocalAssistant-'):
-                    continue
-                if not item.name.endswith('.dist-info'):
-                    continue
-                self._real_remove(item.path)
-                break
+        path: pathlib.Path = pathlib.Path(self.project_path)
+        while path.name != '.venv': # goes back until reach .venv
+            path = path.parent
 
-            self._real_remove(pathlib.Path(self.project_path))
+        if delete_all:
+            path = path.parent
+        self._real_remove(path)
 
 class ConfigManager:
     """Config of LocalAssistant"""
@@ -141,14 +132,12 @@ class ConfigManager:
                 "hf_token": "", # Hugging Face token.
                 "load_in_bits": "8", # 'quantization' method. (So the device won't blow up)
                 "top_k_memory": "5", # num of memory to use
+                "stopwords_lang": "english",
                 "models": { # the model that being use for chatting.
                     "Text_Generation": "",
                     "Sentence_Transformer": "",
                 },
-                "users": {
-                    "current": "1", # the current user that being used.
-                    "1": "default",
-                }
+                "users": "default",
             }
 
             # dump data to file.
@@ -191,7 +180,11 @@ class ConfigManager:
                 os.makedirs(self.utils_ext.user_path / 'default' / 'history')
             except FileExistsError:
                 pass
-            os.mkdir(self.utils_ext.user_path / 'default' / 'memory')
+
+            try:
+                os.mkdir(self.utils_ext.user_path / 'default' / 'memory')
+            except FileExistsError:
+                pass
 
             self.data.update({'users': 'default',})
         else: # user add new user.
@@ -277,7 +270,6 @@ Type 'exit' to exit.\n""")
 
             if command == '':
                 logging.error('There is no input.')
-                print('ERROR: There is no input.\n')
                 continue
 
             if command.lower() in ('exit', 'exit()'):
@@ -293,7 +285,6 @@ Type 'exit' to exit.\n""")
                         chat_name = command.split()[1]
                     except IndexError:
                         logging.error('Missing NAME.')
-                        print('ERROR: Missing NAME.\n')
                         continue
 
                     if user == 'default':
@@ -304,7 +295,6 @@ Give the user the best supports as you can."
 who serves the user called {user}. Give {user} the best supports as you can."
 
                 if chat_name in history_list: # throw error if create same name.
-                    print(f"ERROR: Name {chat_name} is used")
                     logging.error("ERROR: Name %s is used.\n", chat_name)
                     continue
 
@@ -315,11 +305,9 @@ who serves the user called {user}. Give {user} the best supports as you can."
                     chat_name = command.split()[1]
                 except IndexError:
                     logging.error('Missing NAME.')
-                    print('ERROR: Missing NAME.\n')
                     continue
 
                 if chat_name not in history_list: # throw error if create same name.
-                    print(f"ERROR: Name {chat_name} is not existed.")
                     logging.error('Name %s is not existed.', chat_name)
                     continue
 
@@ -329,11 +317,23 @@ who serves the user called {user}. Give {user} the best supports as you can."
 
             if command not in history_list:
                 logging.error('No history named %s', command)
-                print(f'ERROR: No history named {command}')
                 continue
 
-            print()
+            print('\n')
             temp_path: str = os.path.join\
                 (self.utils_ext.user_path, user, 'history', f'{command}.json')
             return ([v for v in self.utils_ext.read_json_file(temp_path).values()], chat_name)
         return ([], '')
+
+    def get_stop_word(self) -> tuple[str]:
+        """Get stopwords from `nltk_stopwords`."""
+        if self.data["stopwords_lang"] == 'README' or\
+                not pathlib.Path(self.utils_ext.stopword_path / self.data["stopwords_lang"]).exists:
+            self.data.update({"stopwords_lang": "english"})
+            self.upload_config_file()
+
+        with open(self.utils_ext.stopword_path / self.data["stopwords_lang"],\
+                mode="r", encoding="utf-8") as read_file:
+            data: str = read_file.read()
+            read_file.close()
+        return data.split('\n')

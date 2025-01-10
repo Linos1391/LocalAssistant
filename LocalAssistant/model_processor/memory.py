@@ -6,13 +6,13 @@ import logging
 import torch
 from sentence_transformers import SentenceTransformer, util
 
-from ..utils import ConfigManager, UtilsExtension, LocalAssistantException
+from ..utils import ConfigManager, LocalAssistantException
 
 class MemoryExtension:
     """Control users' memory."""
     def __init__(self, model_name: str):
         self.config = ConfigManager()
-        self.utils_ext = UtilsExtension()
+        self.utils_ext = self.config.utils_ext
 
         try:
             temp_path: str = self.utils_ext.model_path / 'Sentence_Transformer' / model_name
@@ -21,10 +21,11 @@ class MemoryExtension:
             logging.error('Can not load model due to: %s', err)
             raise LocalAssistantException('Can not load model.') from err
 
-    # TODO - add stopwords.
     def encode_memory(self) -> None:
         """Encode user's memory."""
         self.config.get_config_file()
+
+        stopwords: tuple = self.config.get_stop_word()
 
         data: list = []
         role: list = []
@@ -52,6 +53,8 @@ class MemoryExtension:
         logging.debug("Transfer data to .json")
         data_to_json: dict = {}
         for index, item in enumerate(data):
+            item = ' '.join([word for word in item.split() if word not in stopwords])
+
             data_to_json.update({
                 index: {
                     "role": role[index],
@@ -104,8 +107,10 @@ class MemoryExtension:
         # Concluding.+
         result: list = []
         for hit in hits:
+            if hit['score'] < 0.8:
+                break
             pointer: dict = data[str(hit["corpus_id"])]
-            whose: str = 'I said: ' if pointer['role'] == 'user' else 'You said: '
+            whose: str = 'Me: ' if pointer['role'] == 'user' else 'You: '
 
             result.append(f"{whose}'{pointer['content']}'")
 

@@ -31,8 +31,13 @@ class UtilsExtension:
         # path and stuffs
         self.project_path: str = pathlib.Path(__file__).parent
         self.stopword_path: str = self.project_path / 'nltk_stopwords'
-        self.model_path: str = 'models'
-        self.user_path: str = 'users'
+
+        self.env_path: pathlib.Path = self.project_path
+        while self.env_path.name != '.venv': # goes back until reach .venv
+            self.env_path = self.env_path.parent
+
+        self.model_path: str = self.env_path.parent / 'models'
+        self.user_path: str = self.env_path.parent / 'users'
 
     @staticmethod
     def _real_remove(path: str):
@@ -97,13 +102,10 @@ There will be no turning back, as with data or model. Continue? [y/(n)]: ")
         print('Self-destruction...')
 
         # Locas, kys.
-        path: pathlib.Path = pathlib.Path(self.project_path)
-        while path.name != '.venv': # goes back until reach .venv
-            path = path.parent
 
         if delete_all:
-            path = path.parent
-        self._real_remove(path)
+            self.env_path = self.env_path.parent
+        self._real_remove(self.env_path)
 
 class ConfigManager:
     """Config of LocalAssistant"""

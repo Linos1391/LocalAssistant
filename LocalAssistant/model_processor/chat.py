@@ -1,6 +1,7 @@
 """Chat processing."""
 
 import logging
+import os
 from threading import Thread
 
 from transformers import AutoTokenizer, AutoModelForCausalLM,\
@@ -28,7 +29,7 @@ class ChatExtension():
         Returns:
             tuple: (text generation, tokenizer)
         """
-        path: str = self.utils_ext.model_path / 'Text_Generation' / model_name
+        path: str = os.path.join(self.utils_ext.model_path, 'Text_Generation', model_name)
         kwarg = dict(local_files_only=True,use_safetensors=True, device_map="auto",)
 
         used_bit = self.config.data["load_in_bits"]
@@ -45,7 +46,7 @@ class ChatExtension():
         kwarg.update()
         return (
             AutoModelForCausalLM.from_pretrained(path, **kwarg ),
-            AutoTokenizer.from_pretrained(path / 'Tokenizer', **kwarg)
+            AutoTokenizer.from_pretrained(os.path.join(path, 'Tokenizer'), **kwarg)
         )
 
     @staticmethod
@@ -260,5 +261,6 @@ use %s instead.', sentence_transformer_model_name)
 
             chat_history.append(reply)
 
-            temp_path: str = self.utils_ext.user_path / user / 'history' / f'{chat_name}.json'
+            temp_path: str = os.path.join\
+                (self.utils_ext.user_path, user, 'history', f'{chat_name}.json')
             self.utils_ext.write_json_file(temp_path, chat_history)

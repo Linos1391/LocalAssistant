@@ -15,7 +15,8 @@ class MemoryExtension:
         self.utils_ext = self.config.utils_ext
 
         try:
-            temp_path: str = self.utils_ext.model_path / 'Sentence_Transformer' / model_name
+            temp_path: str = os.path.join\
+                (self.utils_ext.model_path, 'Sentence_Transformer', model_name)
             self.model = SentenceTransformer(temp_path, local_files_only=True)
         except Exception as err:
             logging.error('Can not load model due to: %s', err)
@@ -31,7 +32,8 @@ class MemoryExtension:
         role: list = []
 
         logging.info('Get history\'s data.')
-        temp_path: str = self.utils_ext.user_path / self.config.data['users'] / 'history'
+        temp_path: str = os.path.join\
+            (self.utils_ext.user_path, self.config.data['users'], 'history')
         for history_file in os.scandir(temp_path):
             # if not json file, continue.
             if not history_file.is_file():

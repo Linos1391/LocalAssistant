@@ -143,14 +143,16 @@ class DownloadExtension():
                     ._download_model(huggingface_path, AutoModelForCausalLM, hf_token)
 
                 # save downloaded model
-                downloaded_path: str = self.utils_ext.model_path / 'Text_Generation' / model_name
+                downloaded_path: str = os.path.join\
+                    (self.utils_ext.model_path, 'Text_Generation', model_name)
                 self._save_model(text_generation_model, downloaded_path)
-                self._save_model(tokenizer_model, downloaded_path / 'Tokenizer')
+                self._save_model(tokenizer_model, os.path.join(downloaded_path, 'Tokenizer'))
 
             case 2: # For sentence transformer
                 sentence_transformer_model = self\
                     ._download_model(huggingface_path, SentenceTransformer, hf_token)
 
                 # save downloaded model
-                downloaded_path: str = self.utils_ext.model_path/'Sentence_Transformer'/model_name
+                downloaded_path: str = os.path.join\
+                    (self.utils_ext.model_path, 'Sentence_Transformer', model_name)
                 self._save_model(sentence_transformer_model, downloaded_path)

@@ -12,7 +12,7 @@ PARSER.add_argument('-v', '--verbose', action='count', help='show debug \
 messages (Can be used multiple times for higher level: CRITICAL[v] -> DEBUG[vvvv])', default=0)
 
 # version.
-PARSER.add_argument('-V', '--version', action='version', version='LocalAssistant 1.0.3rc1')
+PARSER.add_argument('-V', '--version', action='version', version='LocalAssistant 1.0.3')
 
 subparser = PARSER.add_subparsers(
     title='commands',

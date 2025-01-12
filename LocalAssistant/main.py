@@ -4,7 +4,6 @@ import logging
 import argparse
 import os
 import shutil
-import pathlib
 
 from .parser import PARSER
 from .utils import LocalAssistantException
@@ -23,7 +22,7 @@ def _download(parser_arg: argparse.Namespace):
         return
 
     try:
-        task: int = parser_arg.TASK
+        task: int = int(parser_arg.TASK)
     except ValueError: # is string
         try:
             task: int = utils_ext.reverse_model_task[parser_arg.TASK]
@@ -35,7 +34,7 @@ def _download(parser_arg: argparse.Namespace):
         raise LocalAssistantException(f"invalid TASK: '{parser_arg.TASK}'.")
 
     DownloadExtension().download_model_from_huggingface\
-        (parser_arg.name, parser_arg.PATH, parser_arg.token, parser_arg.TASK)
+        (parser_arg.name, parser_arg.PATH, parser_arg.token, task)
 
 def _config(parser_arg: argparse.Namespace):
     """Config command function"""
@@ -115,17 +114,6 @@ Choose from: '4', '8', 'None'.", _check_valid):
                     break
                 continue
 
-            case 'stopwords_lang':
-                def _check_valid(command: str) -> bool:
-                    if pathlib.Path(utils_ext.stopword_path/command).exists and command != 'README':
-                        return True
-                    return False
-
-                if not _change_single(command,\
-                    "'stopwords_lang' let us know which stopwords will be used.", _check_valid):
-                    break
-                continue
-
             case 'models':
                 while True:
                     utils_ext.print_dict(config.data['models'])
@@ -145,7 +133,7 @@ Choose from: '4', '8', 'None'.", _check_valid):
 
                         model: str = config.data['models'][command]
                         folder_model: list = []
-                        for item in os.scandir(utils_ext.model_path / model):
+                        for item in os.scandir(os.path.join(utils_ext.model_path, model)):
                             if item.is_dir():
                                 folder_model.append(item.name)
                                 print(f'    - {item.name}')
@@ -163,8 +151,21 @@ def _user(parser_arg: argparse.Namespace):
 
     exist = config.check_exist_user_physically(parser_arg.TARGET)
 
+    # show user.
+    if parser_arg.TARGET.lower() == 'show':
+        users: list = []
+        for item in os.scandir(utils_ext.user_path):
+            if not item.is_dir():
+                continue
+            if config.check_exist_user_physically(item.name):
+                users.append(item.name)
+        if users:
+            print('Existed users:')
+        for user in users:
+            print(f'    - {user}')
+
     # create user.
-    if parser_arg.create:
+    elif parser_arg.create:
         if exist:
             logging.error("User '%s' is existed.", parser_arg.TARGET)
             raise LocalAssistantException(f"User '{parser_arg.TARGET}' is existed.")
@@ -176,7 +177,7 @@ def _user(parser_arg: argparse.Namespace):
         if not exist:
             logging.error("User '%s' is not existed.", parser_arg.TARGET)
             raise LocalAssistantException(f"User '{parser_arg.TARGET}' is not existed.")
-        shutil.rmtree(utils_ext.user_path / parser_arg.TARGET)
+        shutil.rmtree(os.path.join(utils_ext.user_path, parser_arg.TARGET))
         logging.info('Deleted user %s.', parser_arg.TARGET)
 
         # rename user.
@@ -189,7 +190,8 @@ def _user(parser_arg: argparse.Namespace):
             logging.error("User '%s' is existed.", parser_arg.rename)
             raise LocalAssistantException(f"User '{parser_arg.rename}' is existed.")
 
-        os.rename(utils_ext.user_path / parser_arg.TARGET, utils_ext.user_path / parser_arg.rename)
+        os.rename(os.path.join(utils_ext.user_path, parser_arg.TARGET),\
+                  os.path.join(utils_ext.user_path, parser_arg.rename))
         logging.info('Renamed user %s to %s.', parser_arg.TARGET, parser_arg.rename)
 
     # change user.

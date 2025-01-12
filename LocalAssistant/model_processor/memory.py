@@ -6,6 +6,8 @@ import logging
 import torch
 from sentence_transformers import SentenceTransformer, util
 
+
+
 from ..utils import ConfigManager, LocalAssistantException
 
 class MemoryExtension:
@@ -15,7 +17,8 @@ class MemoryExtension:
         self.utils_ext = self.config.utils_ext
 
         try:
-            temp_path: str = self.utils_ext.model_path / 'Sentence_Transformer' / model_name
+            temp_path: str = os.path.join\
+                (self.utils_ext.model_path, 'Sentence_Transformer', model_name)
             self.model = SentenceTransformer(temp_path, local_files_only=True)
         except Exception as err:
             logging.error('Can not load model due to: %s', err)
@@ -25,13 +28,12 @@ class MemoryExtension:
         """Encode user's memory."""
         self.config.get_config_file()
 
-        stopwords: tuple = self.config.get_stop_word()
-
         data: list = []
         role: list = []
 
         logging.info('Get history\'s data.')
-        temp_path: str = self.utils_ext.user_path / self.config.data['users'] / 'history'
+        temp_path: str = os.path.join\
+            (self.utils_ext.user_path, self.config.data['users'], 'history')
         for history_file in os.scandir(temp_path):
             # if not json file, continue.
             if not history_file.is_file():
@@ -42,8 +44,9 @@ class MemoryExtension:
             # the rest is .json file.
             logging.debug('Reading %s.', history_file.name)
 
-            data = self.utils_ext.read_json_file(history_file.path)
-            for conversation in data:
+            json_data = self.utils_ext.read_json_file(history_file.path)
+
+            for conversation in json_data:
                 if conversation["role"] == "system": # skip system
                     continue
                 role.append(conversation["role"])
@@ -53,8 +56,6 @@ class MemoryExtension:
         logging.debug("Transfer data to .json")
         data_to_json: dict = {}
         for index, item in enumerate(data):
-            item = ' '.join([word for word in item.split() if word not in stopwords])
-
             data_to_json.update({
                 index: {
                     "role": role[index],
@@ -67,14 +68,13 @@ class MemoryExtension:
         self.utils_ext.write_json_file(temp_path, data_to_json)
 
         # encode
-        print('Encoding data...')
         encoded_data = self.model.encode(data, convert_to_tensor=True, show_progress_bar=True)
 
         temp_path = os.path.join\
             (self.utils_ext.user_path, self.config.data['users'], 'memory', 'encoded_memory.pt')
         torch.save(encoded_data, temp_path)
 
-    def ask_query(self, question: str, top_k: int = 5) -> list[str]:
+    def ask_query(self, question: str, top_k: int = 0) -> list[str]:
         """Ask query function."""
         self.config.get_config_file()
 
@@ -104,14 +104,15 @@ class MemoryExtension:
             (self.utils_ext.user_path, self.config.data['users'], 'memory', 'all_memory.json')
         data = self.utils_ext.read_json_file(temp_path)
 
-        # Concluding.+
+        # Concluding.
         result: list = []
         for hit in hits:
-            if hit['score'] < 0.8:
+            if hit['score'] < 0.5:
                 break
             pointer: dict = data[str(hit["corpus_id"])]
             whose: str = 'Me: ' if pointer['role'] == 'user' else 'You: '
 
             result.append(f"{whose}'{pointer['content']}'")
+            logging.debug("Use memory: %s'%s'", whose, pointer['content'])
 
         return result

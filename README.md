@@ -67,16 +67,18 @@ locas -h
 
 # Preparing
 
-To chat, we will need model! You can download whatever you like. Below is my recommend for first use (Like a starter pack.)
+To chat, we will need model! You can download other models you want. Below is my recommend for first use (Like a starter pack.)
 
-For text generation:
+**For text generation:**
+*(Choose other models from [here](https://huggingface.co/models?pipeline_tag=text-generation&library=safetensors&sort=trending).)*
 ```
 locas download -n qwen Qwen/Qwen2.5-1.5B-Instruct 1
 ```
 
-For sentence transformer:
+**For sentence transformer:**
+*(If you want other models, I recommend using [MSMarco](https://www.sbert.net/docs/pretrained-models/msmarco-v5.html).)*
 ```
-locas download -n allmpnetv2 sentence-transformers/all-mpnet-base-v2 2
+locas download -n msmarco sentence-transformers/msmarco-MiniLM-L12-cos-v5 2
 ```
 
 <br>

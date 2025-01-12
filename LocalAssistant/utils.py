@@ -30,9 +30,13 @@ class UtilsExtension:
 
         # path and stuffs
         self.project_path: str = pathlib.Path(__file__).parent
-        self.stopword_path: str = self.project_path / 'nltk_stopwords'
-        self.model_path: str = 'models'
-        self.user_path: str = 'users'
+
+        self.env_path: pathlib.Path = self.project_path
+        while self.env_path.name != '.venv': # goes back until reach .venv
+            self.env_path = self.env_path.parent
+
+        self.model_path: str = self.env_path.parent / 'models'
+        self.user_path: str = self.env_path.parent / 'users'
 
     @staticmethod
     def _real_remove(path: str):
@@ -47,7 +51,7 @@ class UtilsExtension:
         os.rmdir(path)
 
     @staticmethod
-    def read_json_file(path: str) -> dict:
+    def read_json_file(path: str):
         """
         Read a json file.
 
@@ -55,10 +59,10 @@ class UtilsExtension:
             path (str): file's path.
 
         Returns:
-            dict: file's data.
+            Any: file's data.
         """
         with open(path, mode="r", encoding="utf-8") as read_file:
-            data: str = json.load(read_file)
+            data = json.load(read_file)
             read_file.close()
         return data
 
@@ -97,20 +101,17 @@ There will be no turning back, as with data or model. Continue? [y/(n)]: ")
         print('Self-destruction...')
 
         # Locas, kys.
-        path: pathlib.Path = pathlib.Path(self.project_path)
-        while path.name != '.venv': # goes back until reach .venv
-            path = path.parent
 
         if delete_all:
-            path = path.parent
-        self._real_remove(path)
+            self.env_path = self.env_path.parent
+        self._real_remove(self.env_path)
 
 class ConfigManager:
     """Config of LocalAssistant"""
     def __init__(self):
         self.utils_ext = UtilsExtension()
         self.data: dict = {}
-        self.path: str = self.utils_ext.project_path / 'locas_config.json'
+        self.path: str = os.path.join(self.utils_ext.project_path, 'locas_config.json')
 
     def upload_config_file(self) -> None:
         """Dump data to `locas_config.json` file."""
@@ -132,7 +133,6 @@ class ConfigManager:
                 "hf_token": "", # Hugging Face token.
                 "load_in_bits": "8", # 'quantization' method. (So the device won't blow up)
                 "top_k_memory": "5", # num of memory to use
-                "stopwords_lang": "english",
                 "models": { # the model that being use for chatting.
                     "Text_Generation": "",
                     "Sentence_Transformer": "",
@@ -159,7 +159,7 @@ class ConfigManager:
             bool: if user already existed.
         """
         scanned: bool = False
-        for _, folders, _ in os.walk(self.utils_ext.user_path / target):
+        for _, folders, _ in os.walk(os.path.join(self.utils_ext.user_path, target)):
             if scanned:
                 break
             scanned = True
@@ -177,12 +177,12 @@ class ConfigManager:
         """
         if user == 'default': # user did not add 'user'.
             try:
-                os.makedirs(self.utils_ext.user_path / 'default' / 'history')
+                os.makedirs(os.path.join(self.utils_ext.user_path, 'default', 'history'))
             except FileExistsError:
                 pass
 
             try:
-                os.mkdir(self.utils_ext.user_path / 'default' / 'memory')
+                os.mkdir(os.path.join(self.utils_ext.user_path, 'default', 'memory'))
             except FileExistsError:
                 pass
 
@@ -193,10 +193,10 @@ class ConfigManager:
             if not self.check_exist_user_physically(user):
                 # update on physical directory
                 try:
-                    os.makedirs(self.utils_ext.user_path / user / 'history')
+                    os.makedirs(os.path.join(self.utils_ext.user_path, user, 'history'))
                 except FileExistsError:
                     pass
-                os.mkdir(self.utils_ext.user_path / user / 'memory')
+                os.mkdir(os.path.join(self.utils_ext.user_path, user, 'memory'))
             logging.debug("Created user '%s'.", user)
         self.upload_config_file()
 
@@ -211,15 +211,15 @@ class ConfigManager:
         task: str = self.utils_ext.model_task[task]
 
         if self.data['models'][task] != '':
-            for root, folders, _ in os.walk(self.utils_ext.model_path / task):
-                if root != self.utils_ext.model_path / task:
+            for root, folders, _ in os.walk(os.path.join(self.utils_ext.model_path, task)):
+                if root != os.path.join(self.utils_ext.model_path, task):
                     break
 
                 if self.data['models'][task] in folders:
                     return # nothing to fix.
 
         scanned: bool = False
-        for _, folders, _ in os.walk(self.utils_ext.model_path / task):
+        for _, folders, _ in os.walk(os.path.join(self.utils_ext.model_path, task)):
             if scanned:
                 break
 
@@ -233,7 +233,7 @@ Please type 'locas download -h' and download one.", task)
 Please type 'locas download -h' and download one.")
 
         self.upload_config_file()
-        logging.info('Apply %s as model for %s.', folders[0], task)
+        logging.info('Apply %s as model for %s.',self.data['models'][task], task)
 
     def load_chat_history(self, user: str) -> tuple[list, str]:
         """ 
@@ -249,7 +249,7 @@ Please type 'locas download -h' and download one.")
             scanned: bool = False
             history_list: list = []
 
-            for _, _, files in os.walk(self.utils_ext.user_path / user / 'history'):
+            for _, _, files in os.walk(os.path.join(self.utils_ext.user_path, user, 'history')):
                 if scanned:
                     break
                 scanned = True
@@ -287,11 +287,11 @@ Type 'exit' to exit.\n""")
                         logging.error('Missing NAME.')
                         continue
 
-                    if user == 'default':
-                        system_prompt = "You are an Assistant named LocalAssistant (Locas). \
+                if user == 'default':
+                    system_prompt = "You are an Assistant named LocalAssistant (Locas). \
 Give the user the best supports as you can."
-                    else:
-                        system_prompt = f"You are an Assistant named LocalAssistant (Locas) \
+                else:
+                    system_prompt = f"You are an Assistant named LocalAssistant (Locas) \
 who serves the user called {user}. Give {user} the best supports as you can."
 
                 if chat_name in history_list: # throw error if create same name.
@@ -311,7 +311,7 @@ who serves the user called {user}. Give {user} the best supports as you can."
                     logging.error('Name %s is not existed.', chat_name)
                     continue
 
-                os.remove(self.utils_ext.user_path / user / 'history' / f'{chat_name}.json')
+                os.remove(os.path.join(self.utils_ext.user_path,user,'history',f'{chat_name}.json'))
                 print()
                 continue
 
@@ -322,18 +322,5 @@ who serves the user called {user}. Give {user} the best supports as you can."
             print('\n')
             temp_path: str = os.path.join\
                 (self.utils_ext.user_path, user, 'history', f'{command}.json')
-            return ([v for v in self.utils_ext.read_json_file(temp_path).values()], chat_name)
+            return ([v for v in self.utils_ext.read_json_file(temp_path)], command.split()[0])
         return ([], '')
-
-    def get_stop_word(self) -> tuple[str]:
-        """Get stopwords from `nltk_stopwords`."""
-        if self.data["stopwords_lang"] == 'README' or\
-                not pathlib.Path(self.utils_ext.stopword_path / self.data["stopwords_lang"]).exists:
-            self.data.update({"stopwords_lang": "english"})
-            self.upload_config_file()
-
-        with open(self.utils_ext.stopword_path / self.data["stopwords_lang"],\
-                mode="r", encoding="utf-8") as read_file:
-            data: str = read_file.read()
-            read_file.close()
-        return data.split('\n')

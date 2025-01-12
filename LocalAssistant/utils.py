@@ -30,7 +30,6 @@ class UtilsExtension:
 
         # path and stuffs
         self.project_path: str = pathlib.Path(__file__).parent
-        self.stopword_path: str = self.project_path / 'nltk_stopwords'
 
         self.env_path: pathlib.Path = self.project_path
         while self.env_path.name != '.venv': # goes back until reach .venv
@@ -52,7 +51,7 @@ class UtilsExtension:
         os.rmdir(path)
 
     @staticmethod
-    def read_json_file(path: str) -> dict:
+    def read_json_file(path: str):
         """
         Read a json file.
 
@@ -60,10 +59,10 @@ class UtilsExtension:
             path (str): file's path.
 
         Returns:
-            dict: file's data.
+            Any: file's data.
         """
         with open(path, mode="r", encoding="utf-8") as read_file:
-            data: str = json.load(read_file)
+            data = json.load(read_file)
             read_file.close()
         return data
 
@@ -134,7 +133,6 @@ class ConfigManager:
                 "hf_token": "", # Hugging Face token.
                 "load_in_bits": "8", # 'quantization' method. (So the device won't blow up)
                 "top_k_memory": "5", # num of memory to use
-                "stopwords_lang": "english",
                 "models": { # the model that being use for chatting.
                     "Text_Generation": "",
                     "Sentence_Transformer": "",
@@ -235,7 +233,7 @@ Please type 'locas download -h' and download one.", task)
 Please type 'locas download -h' and download one.")
 
         self.upload_config_file()
-        logging.info('Apply %s as model for %s.', folders[0], task)
+        logging.info('Apply %s as model for %s.',self.data['models'][task], task)
 
     def load_chat_history(self, user: str) -> tuple[list, str]:
         """ 
@@ -289,11 +287,11 @@ Type 'exit' to exit.\n""")
                         logging.error('Missing NAME.')
                         continue
 
-                    if user == 'default':
-                        system_prompt = "You are an Assistant named LocalAssistant (Locas). \
+                if user == 'default':
+                    system_prompt = "You are an Assistant named LocalAssistant (Locas). \
 Give the user the best supports as you can."
-                    else:
-                        system_prompt = f"You are an Assistant named LocalAssistant (Locas) \
+                else:
+                    system_prompt = f"You are an Assistant named LocalAssistant (Locas) \
 who serves the user called {user}. Give {user} the best supports as you can."
 
                 if chat_name in history_list: # throw error if create same name.
@@ -313,7 +311,7 @@ who serves the user called {user}. Give {user} the best supports as you can."
                     logging.error('Name %s is not existed.', chat_name)
                     continue
 
-                os.remove(os.path.join(self.utils_ext.user_path, user, 'history', f'{chat_name}.json'))
+                os.remove(os.path.join(self.utils_ext.user_path,user,'history',f'{chat_name}.json'))
                 print()
                 continue
 
@@ -324,18 +322,5 @@ who serves the user called {user}. Give {user} the best supports as you can."
             print('\n')
             temp_path: str = os.path.join\
                 (self.utils_ext.user_path, user, 'history', f'{command}.json')
-            return ([v for v in self.utils_ext.read_json_file(temp_path).values()], chat_name)
+            return ([v for v in self.utils_ext.read_json_file(temp_path)], command.split()[0])
         return ([], '')
-
-    def get_stop_word(self) -> tuple[str]:
-        """Get stopwords from `nltk_stopwords`."""
-        if self.data["stopwords_lang"] == 'README' or\
-                not pathlib.Path(os.path.join(self.utils_ext.stopword_path, self.data["stopwords_lang"])).exists():
-            self.data.update({"stopwords_lang": "english"})
-            self.upload_config_file()
-
-        with open(os.path.join(self.utils_ext.stopword_path, self.data["stopwords_lang"]),\
-                mode="r", encoding="utf-8") as read_file:
-            data: str = read_file.read()
-            read_file.close()
-        return data.split('\n')

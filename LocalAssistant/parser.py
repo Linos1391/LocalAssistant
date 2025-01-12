@@ -62,7 +62,6 @@ Configurate LocalAssistant.
 'hf_token': '',
 'load_in_bits': '8',
 'top_k_memory': '5',
-'stopwords_lang': 'english',
 'models': {
    'Text_Generation': 'Qwen',
    'Sentence_Transformer': 'base',
@@ -81,7 +80,6 @@ Modify VALUE of 'load_in_bits' to ... (Type 'exit' to exit.)
 'hf_token': '',
 'load_in_bits': 'None',
 'top_k_memory': '5',
-'stopwords_lang': 'english',
 'models': {
    'Text_Generation': 'Qwen',
    'Sentence_Transformer': 'base',
@@ -116,7 +114,8 @@ subparser_config_group.add_argument('-s', '--show', action='store_true', help='S
 TEMP_STRING: str = """\
 Use this to configurate user.
     - To change change user. Type 'locas user TARGET'.
-    - To see existed users. Type 'locas config -s' and look at 'users'.
+    - To do other stuff, use (-c|-d|-r NAME).
+    - To show exist user. Type 'locas user show'.
 """
 subparser_user = subparser.add_parser(
     name='user',
@@ -151,11 +150,11 @@ Recommend for fast chat as non-user. (no history saved)',
 
 subparser_chat.add_argument('LINE', action='store', type=int, help='Number of line to chat with')
 
-subparser_chat.add_argument('-tgm', '--text_generation', metavar='MODEL', action='store',\
+subparser_chat.add_argument('-tgm', '--text-generation', metavar='MODEL', action='store',\
     help='Use downloaded text generation model', default='')
 
-subparser_chat.add_argument('-t', '--max_token', metavar='TOKEN', action='store', type=int,\
-    help='Max tokens to generate', default= 150)
+subparser_chat.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,\
+    help='Max tokens to generate', default= 500)
 
 # +-----------------+
 # | locas start ... |
@@ -170,19 +169,19 @@ subparser_start = subparser.add_parser(
 subparser_start.add_argument('-u', '--user', action='store',\
     help='The user name', default='default')
 
-subparser_start.add_argument('-tgm', '--text_generation', metavar='MODEL', action='store',\
+subparser_start.add_argument('-tgm', '--text-generation', metavar='MODEL', action='store',\
     help='Use downloaded text generation model', default='')
 
-subparser_start.add_argument('-t', '--max_token', metavar='TOKEN', action='store', type=int,\
-    help='Max tokens to generate', default= 150)
+subparser_start.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,\
+    help='Max tokens to generate', default= 500)
 
-subparser_start.add_argument('-m', '--memory_enable', action='store_true',\
+subparser_start.add_argument('-m', '--memory-enable', action='store_true',\
     help='Enable memory function')
 
-subparser_start.add_argument('-stm', '--sentence_transformer', metavar='MODEL', action='store',\
+subparser_start.add_argument('-stm', '--sentence-transformer', metavar='MODEL', action='store',\
     help='Use downloaded sentence transformer model. (When memory enabled)', default='')
 
-subparser_start.add_argument('-tk', '--top_k_memory', metavar='TOP_K', action='store', type=int,\
+subparser_start.add_argument('-tk', '--top-k-memory', metavar='TOP_K', action='store', type=int,\
     help='How much memory you want to recall. (When memory enabled)', default= 0)
 
 subparser_start.add_argument('--encode-at-start', action='store_true',\

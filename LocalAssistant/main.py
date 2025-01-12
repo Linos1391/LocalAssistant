@@ -4,7 +4,6 @@ import logging
 import argparse
 import os
 import shutil
-import pathlib
 
 from .parser import PARSER
 from .utils import LocalAssistantException
@@ -115,18 +114,6 @@ Choose from: '4', '8', 'None'.", _check_valid):
                     break
                 continue
 
-            case 'stopwords_lang':
-                def _check_valid(command: str) -> bool:
-                    if pathlib.Path(os.path.join(utils_ext.stopword_path, command))\
-                            .exists() and command != 'README':
-                        return True
-                    return False
-
-                if not _change_single(command,\
-                    "'stopwords_lang' let us know which stopwords will be used.", _check_valid):
-                    break
-                continue
-
             case 'models':
                 while True:
                     utils_ext.print_dict(config.data['models'])
@@ -164,8 +151,21 @@ def _user(parser_arg: argparse.Namespace):
 
     exist = config.check_exist_user_physically(parser_arg.TARGET)
 
+    # show user.
+    if parser_arg.TARGET.lower() == 'show':
+        users: list = []
+        for item in os.scandir(utils_ext.user_path):
+            if not item.is_dir():
+                continue
+            if config.check_exist_user_physically(item.name):
+                users.append(item.name)
+        if users:
+            print('Existed users:')
+        for user in users:
+            print(f'    - {user}')
+
     # create user.
-    if parser_arg.create:
+    elif parser_arg.create:
         if exist:
             logging.error("User '%s' is existed.", parser_arg.TARGET)
             raise LocalAssistantException(f"User '{parser_arg.TARGET}' is existed.")

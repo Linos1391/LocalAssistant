@@ -72,9 +72,7 @@ class ChatExtension():
         """
         # format history.
         format_history = tokenizer_model\
-            .apply_chat_template(history, tokenize=False, add_generation_prompt=True, kwargs=kwargs)
-
-        print(format_history) # - TODO
+            .apply_chat_template(history, tokenize=False, add_generation_prompt=True, **kwargs)
 
         input_token = tokenizer_model(format_history, return_tensors="pt", add_special_tokens=False)
 
@@ -103,7 +101,7 @@ class ChatExtension():
             self,
             text_generation_model_name: str = '',
             lines: int = 1,
-            max_new_tokens: int = 150,
+            max_new_tokens: int = 500,
         ):
         """
         Chat with models for limited lines. Recommend for fast chat as non-user. (no history saved)
@@ -111,7 +109,7 @@ class ChatExtension():
         Args:
             text_generation_model_name (str): text generation model's name, use config if blank.
             lines (int): lines of chat (not count 'assistant'), default as 1.
-            max_new_tokens (int): max tokens to generate, default as 150.
+            max_new_tokens (int): max tokens to generate, default as 500.
         """
 
         if lines < 1:
@@ -178,7 +176,7 @@ for text generation.\n\nType 'exit' to exit.", end='')
             self,
             text_generation_model_name: str = '',
             user: str = 'default',
-            max_new_tokens: int = 150,
+            max_new_tokens: int = 500,
             memory_enable: bool = False,
             sentence_transformer_model_name: str = '',
             top_k_memory: int = 0,
@@ -190,7 +188,7 @@ for text generation.\n\nType 'exit' to exit.", end='')
         Args:
             text_generation_model_name (str): text generation model's name, use config if blank.
             user (str): chat by user, default as 'default'.
-            max_new_tokens (int): max tokens to generate, default as 50.
+            max_new_tokens (int): max tokens to generate, default as 500.
             
             memory_enable (bool): enable memory function, default as False.
             sentence_transformer_model_name (str): sentence transformer model's name, \
@@ -254,7 +252,8 @@ use %s instead.', sentence_transformer_model_name)
             kwargs = {}
             if memory_enable:
                 memories: list = memory_ext.ask_query(prompt, top_k_memory)
-                kwargs = {'Memory': memories}
+                if memories:
+                    kwargs = {'memories': memories}
 
             reply = self._chat(chat_history, text_generation_model,\
                 tokenizer_model, max_new_tokens, **kwargs)

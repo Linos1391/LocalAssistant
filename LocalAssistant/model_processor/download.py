@@ -9,7 +9,7 @@ from sentence_transformers import SentenceTransformer
 
 from ..utils import UtilsExtension, LocalAssistantException
 
-class DownloadExtension():
+class DownloadExtension:
     """Download extention for LocalAssistant."""
     def __init__(self):
         self.utils_ext = UtilsExtension()
@@ -40,8 +40,7 @@ class DownloadExtension():
 
         try:
             if isinstance(model, SentenceTransformer):
-                return model\
-                    (huggingface_path, use_safetensors=True, token=hf_token)
+                return SentenceTransformer(huggingface_path, token=hf_token)
             return model.from_pretrained\
                 (huggingface_path, use_safetensors=True, device_map="auto", token=hf_token)
         except Exception as err:
@@ -51,15 +50,18 @@ class DownloadExtension():
 
     @staticmethod
     def _save_model(
-            model:AutoTokenizer|AutoModelForCausalLM,
+            model:AutoTokenizer|AutoModelForCausalLM|SentenceTransformer,
             path: str|pathlib.Path,
-        ) -> None:
+        ) -> str:
         """
         Save model to path. Check if the name has taken and rename. (only dir)
 
         Args:
-            model (AutoTokenizer | AutoModelForCausalLM): model is used.
+            model (AutoTokenizer | AutoModelForCausalLM | SentenceTransformer): model is used.
             path (str | pathlib.Path): path to save to.
+
+        Returns:
+            str: path after fixed.
         """
         # take parent and child path
         path = pathlib.Path(path)
@@ -78,10 +80,10 @@ class DownloadExtension():
         while not stop:
             for item in os.scandir(parent):
                 scanned = True
-                if not item.is_dir():
-                    continue
 
                 if item.name == child:
+                    if not item.is_dir():
+                        continue
                     logging.debug('Found %s.', child)
                     index: str = item.name.split(' ')[-1]
 
@@ -106,6 +108,7 @@ class DownloadExtension():
 
         logging.info('Save as %s in %s.', child, parent.name)
         model.save_pretrained(str(parent / child))
+        return str(parent / child)
 
     def download_model_from_huggingface(
             self,
@@ -138,19 +141,19 @@ class DownloadExtension():
 
         match task:
             case 1: # For text generation.
-                tokenizer_model = self._download_model(huggingface_path, AutoTokenizer, hf_token)
+                tokenizer_model = self._download_model(huggingface_path, AutoTokenizer(), hf_token)
                 text_generation_model = self\
-                    ._download_model(huggingface_path, AutoModelForCausalLM, hf_token)
+                    ._download_model(huggingface_path, AutoModelForCausalLM(), hf_token)
 
                 # save downloaded model
                 downloaded_path: str = os.path.join\
                     (self.utils_ext.model_path, 'Text_Generation', model_name)
-                self._save_model(text_generation_model, downloaded_path)
+                downloaded_path = self._save_model(text_generation_model, downloaded_path)
                 self._save_model(tokenizer_model, os.path.join(downloaded_path, 'Tokenizer'))
 
             case 2: # For sentence transformer
                 sentence_transformer_model = self\
-                    ._download_model(huggingface_path, SentenceTransformer, hf_token)
+                    ._download_model(huggingface_path, SentenceTransformer(), hf_token)
 
                 # save downloaded model
                 downloaded_path: str = os.path.join\

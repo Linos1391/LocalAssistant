@@ -9,6 +9,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM,\
 
 from ..utils import ConfigManager, LocalAssistantException
 from .memory import MemoryExtension
+from .docs import DocsQuestionAnswerExtension
 
 class ChatExtension():
     """Chat extention for LocalAssistant."""
@@ -183,7 +184,7 @@ for text generation.\n\nType 'exit' to exit.", end='')
             encode_at_start: bool = False,
         ):
         """
-        Chat with models for limited lines. Recommend for fast chat as non-user. (no history saved)
+        Chat with models with unlimited lines. History will be saved.
         
         Args:
             text_generation_model_name (str): text generation model's name, use config if blank.
@@ -223,7 +224,7 @@ use %s instead.', sentence_transformer_model_name)
 
         # load chat history.
         logging.debug('Loading history.')
-        chat_history, chat_name = self.config.load_chat_history(user)
+        chat_history, chat_name = self.utils_ext.load_chat_history(user)
 
         # user typed 'exit'
         if chat_name == '':
@@ -263,3 +264,102 @@ use %s instead.', sentence_transformer_model_name)
             temp_path: str = os.path.join\
                 (self.utils_ext.user_path, user, 'history', f'{chat_name}.json')
             self.utils_ext.write_json_file(temp_path, chat_history)
+
+    def docs_question_answer(
+            self,
+            text_generation_model_name: str = '',
+            max_new_tokens: int = 500,
+            sentence_transformer_model_name: str = '',
+            cross_encoder_model_name: str = '',
+            top_k: int = 0,
+            allow_score: float = 0.0,
+            encode_at_start: bool = False,
+            show_retrieve: bool = False,
+        ):
+        """
+        Ask information from provided docs.
+
+        Args:
+            text_generation_model_name (str): text generation model's name, use config if blank.
+            max_new_tokens (int): max tokens to generate, default as 500.
+            sentence_transformer_model_name (str): sentence transformer model's name, \
+                use config if blank.
+            cross_encoder_model_name (str): cross encoder model's name, use config if blank.
+            top_k (int, optional): how many sentences you want to retrieve.
+            allow_score (float, optional): retrieving process will stop when \
+                similiarity score is lower.
+            encode_at_start (bool, optional): encode memory before chating.
+            show_retrieve (bool, optional): show retrieved data.
+        """
+        self.config.get_config_file()
+
+        if text_generation_model_name == '':
+            self.config.check_for_exist_model(1)
+            text_generation_model_name = self.config.data['models']['Text_Generation']
+            logging.info('No text generation model, use %s instead.', text_generation_model_name)
+
+        if sentence_transformer_model_name == '':
+            self.config.check_for_exist_model(2)
+            sentence_transformer_model_name = self.config.data['models']['Sentence_Transformer']
+            logging.info('No sentence transformer model, \
+use %s instead.', sentence_transformer_model_name)
+
+        if cross_encoder_model_name == '':
+            self.config.check_for_exist_model(3)
+            cross_encoder_model_name = self.config.data['models']['Cross_Encoder']
+            logging.info('No cross encoder model, use %s instead.', cross_encoder_model_name)
+
+        history: list = [
+            {
+                "role": "system", 
+                "content": "You are an Assistant named LocalAssistant (Locas). \
+Got provided with tons of docs, your duty is answering user's questions the best as possible. \
+If docs' data are nonesense, you can ignore them and use your own words."
+            },
+        ]
+
+        # load model
+        logging.debug('Begin to load models.')
+        text_generation_model, tokenizer_model = self._load_local_model(text_generation_model_name)
+        docs_ext = DocsQuestionAnswerExtension\
+                (sentence_transformer_model_name, cross_encoder_model_name)
+        if encode_at_start:
+            print("Encoding at start. Please be patient, it may take some minutes.")
+            docs_ext.encode()
+        logging.debug('Done loading models.')
+
+        print(f"Start docs Q&A with '{text_generation_model_name}' for text generation, \
+'{sentence_transformer_model_name}' for sentence transformer.\n\nType 'exit' to exit.", end='')
+
+        while True:
+            prompt: str = input('\n\n>> ')
+            print()
+
+            if prompt.lower() in ('exit', 'exit()'):
+                return
+
+            docs_data: list = docs_ext.ask_query(prompt, top_k, allow_score)
+            docs_dict: dict = {}
+            for data in docs_data:
+                try:
+                    docs_dict[data['title']].append(data['content'])
+                except KeyError:
+                    docs_dict.update({data['title']: [data['content']]})  
+
+            prompt_input: str = "Retrieved data from docs:\n"
+            for index, (title, content) in enumerate(docs_dict.items()):
+                prompt_input += f"{index}. From file '{title}':\n"
+                for text in content:
+                    prompt_input += f"  - {text}\n"
+                prompt_input += '\n'
+
+            if show_retrieve:
+                div: int = os.get_terminal_size().columns * '-'
+                print(f'{div}\n{prompt_input}{div}\n')
+
+            prompt_input += f"\nQuestion: {prompt}"
+            history.append({"role": "user", "content": prompt_input,})
+
+            reply = self._chat(history, text_generation_model, tokenizer_model, max_new_tokens)
+
+            history.append(reply)

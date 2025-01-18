@@ -2,10 +2,14 @@
     "hf_token": "",
     "load_in_bits": "8",
     "top_k_memory": "5",
-    "stopwords_lang": "english",
     "models": {
         "Text_Generation": "",
-        "Sentence_Transformer": ""
+        "Sentence_Transformer": "",
+        "Cross_Encoder": ""
+    },
+    "documents": {
+        "top_k": "10",
+        "allow_score": "0.6"
     },
     "users": "default"
 }

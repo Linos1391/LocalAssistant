@@ -6,8 +6,6 @@ import logging
 import torch
 from sentence_transformers import SentenceTransformer, util
 
-
-
 from ..utils import ConfigManager, LocalAssistantException
 
 class MemoryExtension:

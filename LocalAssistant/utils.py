@@ -25,6 +25,7 @@ class UtilsExtension:
         self.model_task: dict = {
             1: 'Text_Generation',
             2: 'Sentence_Transformer',
+            3: 'Cross_Encoder',
         }
         self.reverse_model_task: dict = {k: v for v, k in self.model_task.items()}
 
@@ -37,6 +38,7 @@ class UtilsExtension:
 
         self.model_path: str = self.env_path.parent / 'models'
         self.user_path: str = self.env_path.parent / 'users'
+        self.docs_path: str = self.env_path.parent / 'documents'
 
     @staticmethod
     def _real_remove(path: str):
@@ -94,7 +96,7 @@ class UtilsExtension:
     def self_destruction(self, delete_all: bool = False):
         """Everything all needs self-destruction."""
         option: str = input("Are you sure to remove LocalAssistant. \
-There will be no turning back, as with data or model. Continue? [y/(n)]: ")
+There will be no turning back. Continue? [y/(n)]: ")
         if option.lower() != 'y':
             print('Self-destruction denied.')
             return
@@ -105,6 +107,96 @@ There will be no turning back, as with data or model. Continue? [y/(n)]: ")
         if delete_all:
             self.env_path = self.env_path.parent
         self._real_remove(self.env_path)
+
+    def load_chat_history(self, user: str) -> tuple[list, str]:
+        """ 
+        Load chat history!
+
+        Args:
+            user (str): user's name.
+        
+        Returns:
+            tuple[list, str]: (list of history, history's name).
+        """
+        while True:
+            scanned: bool = False
+            history_list: list = []
+
+            for _, _, files in os.walk(os.path.join(self.user_path, user, 'history')):
+                if scanned:
+                    break
+                scanned = True
+
+                if files == []:
+                    print("\nThere is no history yet, please create one.")
+                else:
+                    print("\nChoose from:")
+                for history in files:
+                    if history.endswith('.json'):
+                        print(f'    - {history.removesuffix('.json')}')
+                        history_list.append(history.removesuffix('.json'))
+            print("""
+Type 'create [name (Required, 1 WORD ONLY] [system_prompt (Optional)]' to create new history.
+Type 'delete [name (Required, 1 WORD ONLY]' to delete history.
+Type 'exit' to exit.\n""")
+            command: str = input('>> ')
+
+            if command == '':
+                logging.error('There is no input.')
+                continue
+
+            if command.lower() in ('exit', 'exit()'):
+                break
+
+            if command.split()[0].lower() == 'create':
+                try:
+                    command_split = command.split()
+                    chat_name = command_split[1]
+                    system_prompt = ' '.join(command_split[2:])
+                except (ValueError, IndexError):
+                    try:
+                        chat_name = command.split()[1]
+                    except IndexError:
+                        logging.error('Missing NAME.')
+                        continue
+
+                if user == 'default':
+                    system_prompt = "You are an Assistant named LocalAssistant (Locas). \
+Give the user the best supports as you can."
+                else:
+                    system_prompt = f"You are an Assistant named LocalAssistant (Locas) \
+who serves the user called {user}. Give {user} the best supports as you can."
+
+                if chat_name in history_list: # throw error if create same name.
+                    logging.error("ERROR: Name %s is used.\n", chat_name)
+                    continue
+
+                return ([{"role": "system", "content": system_prompt}], chat_name)
+
+            if command.split()[0].lower() == 'delete':
+                try:
+                    chat_name = command.split()[1]
+                except IndexError:
+                    logging.error('Missing NAME.')
+                    continue
+
+                if chat_name not in history_list: # throw error if create same name.
+                    logging.error('Name %s is not existed.', chat_name)
+                    continue
+
+                os.remove(os.path.join(self.user_path,user,'history',f'{chat_name}.json'))
+                print()
+                continue
+
+            if command not in history_list:
+                logging.error('No history named %s', command)
+                continue
+
+            print('\n')
+            temp_path: str = os.path.join\
+                (self.user_path, user, 'history', f'{command}.json')
+            return ([v for v in self.read_json_file(temp_path)], command.split()[0])
+        return ([], '')
 
 class ConfigManager:
     """Config of LocalAssistant"""
@@ -136,6 +228,11 @@ class ConfigManager:
                 "models": { # the model that being use for chatting.
                     "Text_Generation": "",
                     "Sentence_Transformer": "",
+                    "Cross_Encoder": "",
+                },
+                "documents": {
+                    "top_k": "10",
+                    "allow_score": "0.6"
                 },
                 "users": "default",
             }
@@ -234,93 +331,3 @@ Please type 'locas download -h' and download one.")
 
         self.upload_config_file()
         logging.info('Apply %s as model for %s.',self.data['models'][task], task)
-
-    def load_chat_history(self, user: str) -> tuple[list, str]:
-        """ 
-        Load chat history!
-
-        Args:
-            user (str): user's name.
-        
-        Returns:
-            tuple[list, str]: (list of history, history's name).
-        """
-        while True:
-            scanned: bool = False
-            history_list: list = []
-
-            for _, _, files in os.walk(os.path.join(self.utils_ext.user_path, user, 'history')):
-                if scanned:
-                    break
-                scanned = True
-
-                if files == []:
-                    print("\nThere is no history yet, please create one.")
-                else:
-                    print("\nChoose from:")
-                for history in files:
-                    if history.endswith('.json'):
-                        print(f'    - {history.removesuffix('.json')}')
-                        history_list.append(history.removesuffix('.json'))
-            print("""
-Type 'create [name (Required, 1 WORD ONLY] [system_prompt (Optional)]' to create new history.
-Type 'delete [name (Required, 1 WORD ONLY]' to delete history.
-Type 'exit' to exit.\n""")
-            command: str = input('>> ')
-
-            if command == '':
-                logging.error('There is no input.')
-                continue
-
-            if command.lower() in ('exit', 'exit()'):
-                break
-
-            if command.split()[0].lower() == 'create':
-                try:
-                    command_split = command.split()
-                    chat_name = command_split[1]
-                    system_prompt = ' '.join(command_split[2:])
-                except (ValueError, IndexError):
-                    try:
-                        chat_name = command.split()[1]
-                    except IndexError:
-                        logging.error('Missing NAME.')
-                        continue
-
-                if user == 'default':
-                    system_prompt = "You are an Assistant named LocalAssistant (Locas). \
-Give the user the best supports as you can."
-                else:
-                    system_prompt = f"You are an Assistant named LocalAssistant (Locas) \
-who serves the user called {user}. Give {user} the best supports as you can."
-
-                if chat_name in history_list: # throw error if create same name.
-                    logging.error("ERROR: Name %s is used.\n", chat_name)
-                    continue
-
-                return ([{"role": "system", "content": system_prompt}], chat_name)
-
-            if command.split()[0].lower() == 'delete':
-                try:
-                    chat_name = command.split()[1]
-                except IndexError:
-                    logging.error('Missing NAME.')
-                    continue
-
-                if chat_name not in history_list: # throw error if create same name.
-                    logging.error('Name %s is not existed.', chat_name)
-                    continue
-
-                os.remove(os.path.join(self.utils_ext.user_path,user,'history',f'{chat_name}.json'))
-                print()
-                continue
-
-            if command not in history_list:
-                logging.error('No history named %s', command)
-                continue
-
-            print('\n')
-            temp_path: str = os.path.join\
-                (self.utils_ext.user_path, user, 'history', f'{command}.json')
-            return ([v for v in self.utils_ext.read_json_file(temp_path)], command.split()[0])
-        return ([], '')

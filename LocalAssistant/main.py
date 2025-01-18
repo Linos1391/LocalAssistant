@@ -7,7 +7,7 @@ import shutil
 
 from .parser import PARSER
 from .utils import LocalAssistantException
-from .model_processor import DownloadExtension, ChatExtension
+from .model_processor import DownloadExtension, ChatExtension, DocsQuestionAnswerExtension
 
 chat_ext = ChatExtension()
 utils_ext = chat_ext.utils_ext
@@ -142,8 +142,44 @@ Choose from: '4', '8', 'None'.", _check_valid):
                             break
                         continue
 
+            case 'documents':
+                while True:
+                    utils_ext.print_dict(config.data['documents'])
+                    print("\nType KEY to modify KEY's VALUE. Type 'exit' to exit.\n")
+                    command = input('>> ')
+                    print()
+
+                    if command.lower() in ('exit', 'exit()'):
+                        break
+
+                    if command not in tuple(config.data['documents'].keys()):
+                        logging.error("Invalid KEY: '%s'.", command)
+                        raise LocalAssistantException(f"Invalid KEY: '{command}'.")
+
+                    if command == 'top_k':
+                        def _check_valid(command: str) -> bool:
+                            if 0 < int(command) < 51:
+                                return True
+                            return False
+
+                        if not _change_single(command,"'top_k' let us know how many \
+lines you want to retrieve. Maximum is 50 lines.", _check_valid):
+                            break
+                        continue
+
+                    if command == 'allow_score':
+                        def _check_valid(command: str) -> bool:
+                            if 0 <= float(command) <= 1:
+                                return True
+                            return False
+
+                        if not _change_single(command,"'allow_score' will make the retrieving \
+process stop when similiarity score is lower.", _check_valid):
+                            break
+                        continue
+
             case 'users':
-                print("Type 'locas user -h' for better config.\n")
+                print("Type 'locas user -h' for better configuration.\n")
                 continue
 
 def _user(parser_arg: argparse.Namespace):
@@ -203,7 +239,7 @@ def _user(parser_arg: argparse.Namespace):
         logging.info('Change user to %s.', parser_arg.TARGET)
 
 def _chat(parser_arg: argparse.Namespace):
-    """Chat command function"""
+    """Chat command function."""
 
     if parser_arg.LINE < 1:
         logging.error("Invalid LINE: %s", parser_arg.LINE)
@@ -213,14 +249,28 @@ def _chat(parser_arg: argparse.Namespace):
         (parser_arg.text_generation, parser_arg.LINE, parser_arg.max_token)
 
 def _start(parser_arg: argparse.Namespace):
-    """Start command function"""
+    """Start command function."""
 
     chat_ext.chat_with_history(parser_arg.text_generation, parser_arg.user, parser_arg.max_token,\
         parser_arg.memory_enable, parser_arg.sentence_transformer,\
-        parser_arg.top_k_memory,parser_arg.encode_at_start)
+        parser_arg.top_k_memory, parser_arg.encode_at_start)
+
+def _docs(parser_arg: argparse.Namespace):
+    """Docsqa command function."""
+
+    if parser_arg.ACTION == 'upload':
+        config.check_for_exist_model(2)
+        DocsQuestionAnswerExtension\
+            (config.data['models']['Sentence_Transformer'],config.data['models']['Cross_Encoder'])\
+            .upload_docs(parser_arg.PATH, parser_arg.copy)
+
+    else:
+        chat_ext.docs_question_answer(parser_arg.text_generation, parser_arg.max_token,\
+            parser_arg.sentence_transformer, parser_arg.cross_encoder, parser_arg.top_k,\
+            parser_arg.allow_score, parser_arg.encode_at_start, parser_arg.show_retrieve)
 
 def _self_destruction(parser_arg: argparse.Namespace):
-    """Self-destruction function"""
+    """Self-destruction function."""
 
     utils_ext.self_destruction(parser_arg.all)
 
@@ -242,6 +292,8 @@ def main():
             _chat(parser_arg)
         case 'start':
             _start(parser_arg)
+        case 'docs':
+            _docs(parser_arg)
         case 'self-destruction':
             _self_destruction(parser_arg)
 

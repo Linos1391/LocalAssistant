@@ -52,7 +52,7 @@ commands:
 
 # Installing
 
-Visit [here](https://github.com/Linos1391/LocalAssistant/releases) and download `locas_installer.py`. And let magic happens.
+Download [locas_installer.py](https://github.com/Linos1391/LocalAssistant/releases/download/v1.0.3/locas_installer.py), and let magic happens.
 ```
 python3 locas_installer.py
 ```
@@ -61,7 +61,7 @@ Let's try if it works:
 ```
 locas -h
 ```
-*Unix user may try `locas.cmd -h` first*
+*Unix user may try `locas.cmd -h` first. (Because of using `locas.cmd`)*
 
 <br>
 
@@ -76,9 +76,15 @@ locas download -n qwen Qwen/Qwen2.5-1.5B-Instruct 1
 ```
 
 **For sentence transformer:**
-*(If you want other models, I recommend using [MSMarco](https://www.sbert.net/docs/pretrained-models/msmarco-v5.html).)*
+*(Choose other models from [here](https://huggingface.co/sentence-transformers?sort_models=modified#models).)*
 ```
-locas download -n msmarco sentence-transformers/msmarco-MiniLM-L12-cos-v5 2
+locas download -n minilm sentence-transformers/all-MiniLM-L6-v2 2
+```
+
+**For cross encoder:**
+*(Choose other models from [here](https://huggingface.co/cross-encoder?sort_models=modified#models).)*
+```
+locas download -n msmarco cross-encoder/ms-marco-MiniLM-L-6-v2 3
 ```
 
 <br>

@@ -12,11 +12,11 @@ PARSER.add_argument('-v', '--verbose', action='count', help='show debug \
 messages (Can be used multiple times for higher level: CRITICAL[v] -> DEBUG[vvvv])', default=0)
 
 # version.
-PARSER.add_argument('-V', '--version', action='version', version='LocalAssistant 1.0.3')
+PARSER.add_argument('-V', '--version', action='version', version='LocalAssistant 1.1.0rc1')
 
 subparser = PARSER.add_subparsers(
     title='commands',
-    description="built-in commands (type 'locas COMMAND -h' for better description)",
+    description="built-in commands (type 'locas COMMAND -h' for better description).",
     metavar='COMMAND',
     dest='COMMAND',
 )
@@ -38,6 +38,7 @@ TEMP_STRING: str = """\
 Model\'s task. Choose from:
     - 'Text_Generation' (or '1'): Download text generation model.
     - 'Sentence_Transformer' (or '2'): Download sentence transformer model.
+    - 'Cross_Encoder' (or '3'): Download cross encoder model.
 """
 subparser_download.add_argument('TASK', action='store', help=TEMP_STRING, default=0)
 del TEMP_STRING
@@ -55,18 +56,23 @@ Face\'s token (Some models might be restricted and need authenticated)', default
 TEMP_STRING: str = """\
 Configurate LocalAssistant.
  
---Example-------------------------------------------------------------
-
+----------------------------Example-----------------------------------
 >> locas config -m
 
-'hf_token': '',
-'load_in_bits': '8',
-'top_k_memory': '5',
-'models': {
-   'Text_Generation': 'Qwen',
-   'Sentence_Transformer': 'base',
+"hf_token": "",
+"load_in_bits": "8",
+"top_k_memory": "5",
+"models": {
+    "Text_Generation": "",
+    "Sentence_Transformer": "",
+    "Cross_Encoder": "",
 },
-'users': 'default',
+"documents": {
+    "top_k": "10",
+    "allow_score": "0.8",
+},
+"users": "default"
+
 Type KEY to modify KEY's VALUE. Type 'exit' to exit.
 
 >> load_in_bits
@@ -76,19 +82,6 @@ Type KEY to modify KEY's VALUE. Type 'exit' to exit.
 Modify VALUE of 'load_in_bits' to ... (Type 'exit' to exit.)
 
 >> None
-
-'hf_token': '',
-'load_in_bits': 'None',
-'top_k_memory': '5',
-'models': {
-   'Text_Generation': 'Qwen',
-   'Sentence_Transformer': 'base',
-},
-'users': 'default',
-Type KEY to modify KEY's VALUE. Type 'exit' to exit.
-
->> exit
-
 ----------------------------------------------------------------------
 
 """
@@ -126,6 +119,7 @@ subparser_user = subparser.add_parser(
 del TEMP_STRING
 
 subparser_user.add_argument('TARGET', action='store', help='The target')
+
 subparser_user_group = subparser_user.add_mutually_exclusive_group()
 
 subparser_user_group.add_argument('-c', '--create', action='store_true',\
@@ -186,6 +180,64 @@ subparser_start.add_argument('-tk', '--top-k-memory', metavar='TOP_K', action='s
 
 subparser_start.add_argument('--encode-at-start', action='store_true',\
     help='Encode memory before chating. (When memory enabled)')
+
+# +----------------+
+# | locas docs ... |
+# +----------------+
+
+subparser_docs = subparser.add_parser(
+    name='docs',
+    help='Ask information from provided documents.',
+    description='Ask information from provided documents.',
+)
+
+subparser_docs = subparser_docs.add_subparsers(
+    title='actions',
+    description='Action to do with documents.',
+    metavar='ACTION',
+    dest='ACTION',
+)
+
+subparser_docs_upload = subparser_docs.add_parser(
+    name='upload',
+    help='Upload files/folders to documents.',
+    description='Upload files/folders to documents.',
+)
+
+subparser_docs_upload.add_argument('PATH', action='store', help='Path to add.')
+
+subparser_docs_upload.add_argument('-c', '--copy', action='store_true',\
+    help='Copy provided folders/files to docs.')
+
+subparser_docs_chat = subparser_docs.add_parser(
+    name='chat',
+    help='Ask queries from docs and get answer.',
+    description='Ask queries from docs and get answer.'
+)
+
+subparser_docs_chat.add_argument('-tgm', '--text-generation', metavar='MODEL', action='store',\
+    help='Use downloaded text generation model', default='')
+
+subparser_docs_chat.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,\
+    help='Max tokens to generate', default= 500)
+
+subparser_docs_chat.add_argument('-stm', '--sentence-transformer',metavar='MODEL',action='store',\
+    help='Use downloaded sentence transformer model.', default='')
+
+subparser_docs_chat.add_argument('-cem', '--cross-encoder',metavar='MODEL',action='store',\
+    help='Use downloaded cross encoder model.', default='')
+
+subparser_docs_chat.add_argument('-tk', '--top-k', metavar='TOP_K', action='store', type=int,\
+    help='How many sentences you want to retrieve.', default= 0)
+
+subparser_docs_chat.add_argument('-s', '--allow-score',metavar='SCORE',action='store',type=float,\
+    help='Retrieving process will stop when similiarity score is lower.', default= 0.0)
+
+subparser_docs_chat.add_argument('--encode-at-start', action='store_true',\
+    help='Encode docs before chating.')
+
+subparser_docs_chat.add_argument('--show-retrieve', action='store_true',\
+    help='Show the retrieved data from docs.')
 
 # +----------------------------+
 # | locas self-destruction ... |

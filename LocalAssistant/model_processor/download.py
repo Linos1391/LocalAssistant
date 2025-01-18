@@ -5,7 +5,7 @@ import os
 import pathlib
 
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, CrossEncoder
 
 from ..utils import UtilsExtension, LocalAssistantException
 
@@ -17,20 +17,17 @@ class DownloadExtension:
     @staticmethod
     def _download_model(
             huggingface_path: str,
-            model: AutoTokenizer|AutoModelForCausalLM|SentenceTransformer,
+            model,
             hf_token: str = '',
-        ) -> AutoTokenizer|AutoModelForCausalLM|SentenceTransformer:
+        ):
         """
         Some models might be restricted and need authenticated. \
             Use token to login temporately and download model.
 
         Args:
             huggingface_path (str): path to huggingface model (author/model_name)
-            model (AutoTokenizer | AutoModelForCausalLM | SentenceTransformer): model is used.
+            model (Any): model is used.
             hf_token (str): huggingface's token.
-
-        Returns:
-            AutoTokenizer|AutoModelForCausalLM: installed model.
         """
         if hf_token == '': # by default, do not use token.
             hf_token: None = None
@@ -41,6 +38,8 @@ class DownloadExtension:
         try:
             if isinstance(model, SentenceTransformer):
                 return SentenceTransformer(huggingface_path, token=hf_token)
+            if model == 'CrossEncoder':
+                return CrossEncoder(huggingface_path)
             return model.from_pretrained\
                 (huggingface_path, use_safetensors=True, device_map="auto", token=hf_token)
         except Exception as err:
@@ -141,9 +140,9 @@ class DownloadExtension:
 
         match task:
             case 1: # For text generation.
-                tokenizer_model = self._download_model(huggingface_path, AutoTokenizer(), hf_token)
+                tokenizer_model = self._download_model(huggingface_path, AutoTokenizer, hf_token)
                 text_generation_model = self\
-                    ._download_model(huggingface_path, AutoModelForCausalLM(), hf_token)
+                    ._download_model(huggingface_path, AutoModelForCausalLM, hf_token)
 
                 # save downloaded model
                 downloaded_path: str = os.path.join\
@@ -159,3 +158,12 @@ class DownloadExtension:
                 downloaded_path: str = os.path.join\
                     (self.utils_ext.model_path, 'Sentence_Transformer', model_name)
                 self._save_model(sentence_transformer_model, downloaded_path)
+
+            case 3: # For cross encoder
+                cross_encoder_model = self._download_model\
+                    (huggingface_path, 'CrossEncoder', hf_token) # CrossEncoder require input.
+
+                # save downloaded model
+                downloaded_path: str = os.path.join\
+                    (self.utils_ext.model_path, 'Cross_Encoder', model_name)
+                self._save_model(cross_encoder_model, downloaded_path)

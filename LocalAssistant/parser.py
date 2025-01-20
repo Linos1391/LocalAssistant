@@ -209,6 +209,9 @@ subparser_docs_upload.add_argument('PATH', action='store', help='Path to add.')
 subparser_docs_upload.add_argument('-c', '--copy', action='store_true',\
     help='Copy provided folders/files to docs.')
 
+subparser_docs_upload.add_argument('--not-encode', action='store_true',\
+    help='Do not encode after upload. (if user want to upload multiple docs)')
+
 subparser_docs_chat = subparser_docs.add_parser(
     name='chat',
     help='Ask queries from docs and get answer.',

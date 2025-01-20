@@ -3,7 +3,7 @@
 import pathlib
 import json
 import os
-import stat
+import shutil
 import logging
 
 ###### - Add more model:
@@ -39,18 +39,6 @@ class UtilsExtension:
         self.model_path: str = self.env_path.parent / 'models'
         self.user_path: str = self.env_path.parent / 'users'
         self.docs_path: str = self.env_path.parent / 'documents'
-
-    @staticmethod
-    def _real_remove(path: str):
-        """Something like shutil.rmtree but without access denied"""
-        for root, dirs, files in os.walk(path, topdown=False):
-            for name in files:
-                filename = os.path.join(root, name)
-                os.chmod(filename, stat.S_IWUSR)
-                os.remove(filename)
-            for name in dirs:
-                os.rmdir(os.path.join(root, name))
-        os.rmdir(path)
 
     @staticmethod
     def read_json_file(path: str):
@@ -106,7 +94,7 @@ There will be no turning back. Continue? [y/(n)]: ")
 
         if delete_all:
             self.env_path = self.env_path.parent
-        self._real_remove(self.env_path)
+        shutil.rmtree(self.env_path)
 
     def load_chat_history(self, user: str) -> tuple[list, str]:
         """ 

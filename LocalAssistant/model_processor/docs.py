@@ -5,6 +5,7 @@ import logging
 import pathlib
 import shutil
 import re
+from itertools import chain
 
 import pymupdf
 import torch
@@ -121,13 +122,48 @@ class DocsQuestionAnswerExtension:
             result += self._get_file(item.path)
         return tuple(result)
 
-    def upload_docs(self, path: str, copy: bool = False) -> None:
+    def _make_name(self, name: str, file_type: str = '') -> str:
+        """Make a valid name."""
+        stop: bool = False
+        scanned: bool = False
+        while not stop:
+            for item in os.scandir(self.utils_ext.docs_path):
+                scanned = True
+
+                if item.name == str(f'{name}.{file_type}' if file_type else name):
+                    logging.debug('Found %s.%s.', name, file_type)
+                    index: str = item.name.split('.', maxsplit=1)[0].split(' ')[-1]
+
+                    # check if index in (n) format
+                    if not index.startswith('(') or not index.endswith(')'):
+                        name += ' (1)'
+                        break
+
+                    try:
+                        index: int = int(index[1:-1])
+                    except ValueError: # it was (n) but n is not int
+                        name += ' (1)'
+                        break
+
+                    name = f'{name[:-4]} ({index + 1})'
+                    break
+                else:
+                    stop = True
+            if not scanned: # not scanned mean dir is empty.
+                break
+        return f'{name}.{file_type}' if file_type else name
+
+    def upload_docs(self, path: str, copy: bool = False, not_encode: bool = False) -> None:
         """
         Upload documents for LocalAssistant to use.
 
         Args:
             path (str): used to locate documents' path.
             copy (bool, optional): Whether to copy file/folder. Defaults to False.
+            not_encode (bool, optional): not to encode. Defaults to False.
+
+        Raises:
+            LocalAssistantException: not a valid path.
         """
         print("Loading datasets. Please be patient, it may take some minutes.")
 
@@ -156,43 +192,23 @@ class DocsQuestionAnswerExtension:
 
         # copy them to `documents` folder.
         logging.debug("Copy data to documents.")
-        stop: bool = False
-        scanned: bool = False
-        name, file_type = path.name.rsplit('.', maxsplit=1)
-        while not stop:
-            for item in os.scandir(self.utils_ext.docs_path):
-                scanned = True
+        file_name = self._make_name(*path.name.split('.', maxsplit=1))
 
-                if item.name == f'{name}.{file_type}':
-                    logging.debug('Found %s.%s.', name, file_type)
-                    index: str = item.name.rsplit('.', maxsplit=1)[0].split(' ')[-1]
-
-                    # check if index in (n) format
-                    if not index.startswith('(') or not index.endswith(')'):
-                        name += ' (1)'
-                        break
-
-                    try:
-                        index: int = int(index[1:-1])
-                    except ValueError: # it was (n) but n is not int
-                        name += ' (1)'
-                        break
-
-                    name = f'{name[:-4]} ({index + 1})'
-                    break
-                else:
-                    stop = True
-            if not scanned: # not scanned mean dir is empty.
-                break
-        del stop, scanned
-
+        # with dir
         if path.is_dir():
             shutil.copytree\
-                (path, os.path.join(self.utils_ext.docs_path, f'{name}.{file_type}'))
+                (path, os.path.join(self.utils_ext.docs_path, file_name))
+        # with archived file.
+        elif path.name.endswith(tuple(chain(*(f[1] for f in shutil.get_unpack_formats())))):
+            shutil.unpack_archive\
+                (path, os.path.join(self.utils_ext.docs_path, file_name.split('.', maxsplit=1)[0]))
+        # with other file types.
         else:
             shutil.copyfile\
-                (path, os.path.join(self.utils_ext.docs_path, f'{name}.{file_type}'))
-        self.encode()
+                (path, os.path.join(self.utils_ext.docs_path, file_name))
+
+        if not not_encode:
+            self.encode()
 
     def encode(self) -> None:
         """Encode documents."""
@@ -237,7 +253,10 @@ class DocsQuestionAnswerExtension:
                     # delete on copied path.
                     for item in os.scandir(self.utils_ext.docs_path):
                         if str(doc) == str(item.path):
-                            self.utils_ext.real_remove(item.path)
+                            if item.is_dir():
+                                shutil.rmtree(item.path)
+                            else:
+                                os.remove(item.path)
                             continue
 
             # add data to json.

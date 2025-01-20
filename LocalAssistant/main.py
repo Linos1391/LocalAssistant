@@ -260,6 +260,7 @@ def _docs(parser_arg: argparse.Namespace):
 
     if parser_arg.ACTION == 'upload':
         config.check_for_exist_model(2)
+        config.check_for_exist_model(3)
         DocsQuestionAnswerExtension\
             (config.data['models']['Sentence_Transformer'],config.data['models']['Cross_Encoder'])\
             .upload_docs(parser_arg.PATH, parser_arg.copy)

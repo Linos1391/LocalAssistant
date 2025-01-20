@@ -1,7 +1,8 @@
 """__init__ of the package."""
 
 from .utils import UtilsExtension, ConfigManager, LocalAssistantException
-from .model_processor import ChatExtension, DownloadExtension, MemoryExtension
+from .model_processor import ChatExtension, DownloadExtension,\
+    MemoryExtension, DocsQuestionAnswerExtension
 
 # check for PyTorch
 try:
@@ -16,6 +17,7 @@ __all__ = [
     'ChatExtension',
     'DownloadExtension',
     'MemoryExtension',
+    'DocsQuestionAnswerExtension',
     'ConfigManager',
     'LocalAssistantException',
 ]

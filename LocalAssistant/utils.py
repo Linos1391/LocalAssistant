@@ -41,7 +41,7 @@ class UtilsExtension:
         self.docs_path: str = self.env_path.parent / 'documents'
 
     @staticmethod
-    def _real_remove(path: str):
+    def real_remove(path: str):
         """Something like shutil.rmtree but without access denied"""
         for root, dirs, files in os.walk(path, topdown=False):
             for name in files:
@@ -50,7 +50,10 @@ class UtilsExtension:
                 os.remove(filename)
             for name in dirs:
                 os.rmdir(os.path.join(root, name))
-        os.rmdir(path)
+        if pathlib.Path(path).is_dir():
+            os.rmdir(path)
+        else:
+            os.remove(path)
 
     @staticmethod
     def read_json_file(path: str):
@@ -106,7 +109,7 @@ There will be no turning back. Continue? [y/(n)]: ")
 
         if delete_all:
             self.env_path = self.env_path.parent
-        self._real_remove(self.env_path)
+        self.real_remove(self.env_path)
 
     def load_chat_history(self, user: str) -> tuple[list, str]:
         """ 

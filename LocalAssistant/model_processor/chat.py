@@ -329,7 +329,8 @@ If docs' data are nonesense, you can ignore them and use your own words."
         logging.debug('Done loading models.')
 
         print(f"Start docs Q&A with '{text_generation_model_name}' for text generation, \
-'{sentence_transformer_model_name}' for sentence transformer.\n\nType 'exit' to exit.", end='')
+'{sentence_transformer_model_name}' for sentence transformer, '{cross_encoder_model_name}' \
+for cross encoder.\n\nType 'exit' to exit.", end='')
 
         while True:
             prompt: str = input('\n\n>> ')

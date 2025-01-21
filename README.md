@@ -52,7 +52,7 @@ commands:
 
 # Installing
 
-Download [locas_installer.py](https://github.com/Linos1391/LocalAssistant/releases/download/v1.1.0rc1/locas_installer.py), and let magic happens.
+Download [locas_installer.py](https://github.com/Linos1391/LocalAssistant/releases/download/v1.1.0/locas_installer.py), and let magic happens.
 ```
 python3 locas_installer.py
 ```

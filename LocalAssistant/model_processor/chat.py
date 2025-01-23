@@ -4,11 +4,10 @@ import logging
 import os
 from threading import Thread
 
-from transformers import AutoTokenizer, AutoModelForCausalLM,\
-    TextIteratorStreamer, BitsAndBytesConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM, TextIteratorStreamer
 
 from ..utils import ConfigManager, LocalAssistantException
-from .memory import MemoryExtension
+from .relation_extraction import MemoryExtension
 from .docs import DocsQuestionAnswerExtension
 
 class ChatExtension():
@@ -31,20 +30,8 @@ class ChatExtension():
             tuple: (text generation, tokenizer)
         """
         path: str = os.path.join(self.utils_ext.model_path, 'Text_Generation', model_name)
-        kwarg = dict(local_files_only=True,use_safetensors=True, device_map="auto",)
+        kwarg = self.config.load_quantization()
 
-        used_bit = self.config.data["load_in_bits"]
-        match used_bit:
-            case '8':
-                kwarg.update({'quantization_config': BitsAndBytesConfig(load_in_8bit=True)})
-            case '4':
-                kwarg.update({'quantization_config': BitsAndBytesConfig(load_in_4bit=True)})
-            case 'None':
-                pass
-            case _:
-                logging.error('Invalid bits! We found: %s.', used_bit)
-                raise LocalAssistantException(f"Invalid bits! We found: {used_bit}.")
-        kwarg.update()
         return (
             AutoModelForCausalLM.from_pretrained(path, **kwarg ),
             AutoTokenizer.from_pretrained(os.path.join(path, 'Tokenizer'), **kwarg)
@@ -100,7 +87,6 @@ class ChatExtension():
 
     def chat_with_limited_lines(
             self,
-            text_generation_model_name: str = '',
             lines: int = 1,
             max_new_tokens: int = 500,
         ):
@@ -108,7 +94,6 @@ class ChatExtension():
         Chat with models for limited lines. Recommend for fast chat as non-user. (no history saved)
         
         Args:
-            text_generation_model_name (str): text generation model's name, use config if blank.
             lines (int): lines of chat (not count 'assistant'), default as 1.
             max_new_tokens (int): max tokens to generate, default as 500.
         """
@@ -124,18 +109,17 @@ You only have {lines} lines, give the user the best supports as you can."
             },
         ]
 
-        if text_generation_model_name == '':
-            self.config.get_config_file()
-            self.config.check_for_exist_model(1)
-            text_generation_model_name = self.config.data['models']['Text_Generation']
-            logging.info('No text generation model, use %s instead.', text_generation_model_name)
+        # get text generation model.
+        self.config.get_config_file()
+        self.config.check_for_exist_model(1)
+        text_generation_model_name = self.config.data['models']['Text_Generation']
 
         # load model
         logging.debug('Begin to load models.')
         text_generation_model, tokenizer_model = self._load_local_model(text_generation_model_name)
         logging.debug('Done loading models.')
 
-        # chat with limited lines
+        # chat with limited lines.
         print(f"\nStart chatting in {lines} line(s) with '{text_generation_model_name}'\
 for text generation.\n\nType 'exit' to exit.", end='')
 
@@ -175,11 +159,9 @@ for text generation.\n\nType 'exit' to exit.", end='')
 
     def chat_with_history(
             self,
-            text_generation_model_name: str = '',
             user: str = 'default',
             max_new_tokens: int = 500,
             memory_enable: bool = False,
-            sentence_transformer_model_name: str = '',
             top_k_memory: int = 0,
             encode_at_start: bool = False,
         ):
@@ -187,32 +169,29 @@ for text generation.\n\nType 'exit' to exit.", end='')
         Chat with models with unlimited lines. History will be saved.
         
         Args:
-            text_generation_model_name (str): text generation model's name, use config if blank.
             user (str): chat by user, default as 'default'.
             max_new_tokens (int): max tokens to generate, default as 500.
             
             memory_enable (bool): enable memory function, default as False.
-            sentence_transformer_model_name (str): sentence transformer model's name, \
-                use config if blank.
             top_k_memory (int): how much memory you want to recall.
             encode_at_start (bool): encode memory before chating.
         """
 
+        #TODO - Fix memory.
+
         self.config.get_config_file()
         self.config.check_for_exist_user(user)
 
-        if text_generation_model_name == '':
-            self.config.check_for_exist_model(1)
-            text_generation_model_name = self.config.data['models']['Text_Generation']
-            logging.info('No text generation model, use %s instead.', text_generation_model_name)
+        # get text generation model.
+        self.config.check_for_exist_model(1)
+        text_generation_model_name = self.config.data['models']['Text_Generation']
 
-        if memory_enable and sentence_transformer_model_name == '':
+        if memory_enable:
+            # get sentence transformer model.
             self.config.check_for_exist_model(2)
             sentence_transformer_model_name = self.config.data['models']['Sentence_Transformer']
-            logging.info('No sentence transformer model, \
-use %s instead.', sentence_transformer_model_name)
 
-        # load model
+        # load model.
         logging.debug('Begin to load models.')
         text_generation_model, tokenizer_model = self._load_local_model(text_generation_model_name)
         if memory_enable:
@@ -267,10 +246,7 @@ use %s instead.', sentence_transformer_model_name)
 
     def docs_question_answer(
             self,
-            text_generation_model_name: str = '',
             max_new_tokens: int = 500,
-            sentence_transformer_model_name: str = '',
-            cross_encoder_model_name: str = '',
             top_k: int = 0,
             allow_score: float = 0.0,
             encode_at_start: bool = False,
@@ -280,11 +256,7 @@ use %s instead.', sentence_transformer_model_name)
         Ask information from provided docs.
 
         Args:
-            text_generation_model_name (str): text generation model's name, use config if blank.
             max_new_tokens (int): max tokens to generate, default as 500.
-            sentence_transformer_model_name (str): sentence transformer model's name, \
-                use config if blank.
-            cross_encoder_model_name (str): cross encoder model's name, use config if blank.
             top_k (int, optional): how many sentences you want to retrieve.
             allow_score (float, optional): retrieving process will stop when \
                 similiarity score is lower.
@@ -293,21 +265,17 @@ use %s instead.', sentence_transformer_model_name)
         """
         self.config.get_config_file()
 
-        if text_generation_model_name == '':
-            self.config.check_for_exist_model(1)
-            text_generation_model_name = self.config.data['models']['Text_Generation']
-            logging.info('No text generation model, use %s instead.', text_generation_model_name)
+        # get text generation model.
+        self.config.check_for_exist_model(1)
+        text_generation_model_name = self.config.data['models']['Text_Generation']
 
-        if sentence_transformer_model_name == '':
-            self.config.check_for_exist_model(2)
-            sentence_transformer_model_name = self.config.data['models']['Sentence_Transformer']
-            logging.info('No sentence transformer model, \
-use %s instead.', sentence_transformer_model_name)
+        # get sentence transformer model.
+        self.config.check_for_exist_model(2)
+        sentence_transformer_model_name = self.config.data['models']['Sentence_Transformer']
 
-        if cross_encoder_model_name == '':
-            self.config.check_for_exist_model(3)
-            cross_encoder_model_name = self.config.data['models']['Cross_Encoder']
-            logging.info('No cross encoder model, use %s instead.', cross_encoder_model_name)
+        # get cross encoder model.
+        self.config.check_for_exist_model(3)
+        cross_encoder_model_name = self.config.data['models']['Cross_Encoder']
 
         history: list = [
             {
@@ -345,7 +313,7 @@ for cross encoder.\n\nType 'exit' to exit.", end='')
                 try:
                     docs_dict[data['title']].append(data['content'])
                 except KeyError:
-                    docs_dict.update({data['title']: [data['content']]})  
+                    docs_dict.update({data['title']: [data['content']]})
 
             prompt_input: str = "Retrieved data from docs:\n"
             for index, (title, content) in enumerate(docs_dict.items()):

@@ -12,7 +12,7 @@ PARSER.add_argument('-v', '--verbose', action='count', help='show debug \
 messages (Can be used multiple times for higher level: CRITICAL[v] -> DEBUG[vvvv])', default=0)
 
 # version.
-PARSER.add_argument('-V', '--version', action='version', version='LocalAssistant 1.1.0')
+PARSER.add_argument('-V', '--version', action='version', version='LocalAssistant 1.1.1rc1')
 
 subparser = PARSER.add_subparsers(
     title='commands',
@@ -144,9 +144,6 @@ Recommend for fast chat as non-user. (no history saved)',
 
 subparser_chat.add_argument('LINE', action='store', type=int, help='Number of line to chat with')
 
-subparser_chat.add_argument('-tgm', '--text-generation', metavar='MODEL', action='store',\
-    help='Use downloaded text generation model', default='')
-
 subparser_chat.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,\
     help='Max tokens to generate', default= 500)
 
@@ -163,23 +160,14 @@ subparser_start = subparser.add_parser(
 subparser_start.add_argument('-u', '--user', action='store',\
     help='The user name', default='default')
 
-subparser_start.add_argument('-tgm', '--text-generation', metavar='MODEL', action='store',\
-    help='Use downloaded text generation model', default='')
-
 subparser_start.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,\
     help='Max tokens to generate', default= 500)
 
-subparser_start.add_argument('-m', '--memory-enable', action='store_true',\
-    help='Enable memory function')
-
-subparser_start.add_argument('-stm', '--sentence-transformer', metavar='MODEL', action='store',\
-    help='Use downloaded sentence transformer model. (When memory enabled)', default='')
-
 subparser_start.add_argument('-tk', '--top-k-memory', metavar='TOP_K', action='store', type=int,\
-    help='How much memory you want to recall. (When memory enabled)', default= 0)
+    help='How much memory you want to recall.', default= 0)
 
-subparser_start.add_argument('--encode-at-start', action='store_true',\
-    help='Encode memory before chating. (When memory enabled)')
+subparser_start.add_argument('--retrieve-memory-only', action='store_true',\
+    help='Only retrieve and not saving the later memories.')
 
 # +----------------+
 # | locas docs ... |
@@ -218,17 +206,8 @@ subparser_docs_chat = subparser_docs.add_parser(
     description='Ask queries from docs and get answer.'
 )
 
-subparser_docs_chat.add_argument('-tgm', '--text-generation', metavar='MODEL', action='store',\
-    help='Use downloaded text generation model', default='')
-
 subparser_docs_chat.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,\
     help='Max tokens to generate', default= 500)
-
-subparser_docs_chat.add_argument('-stm', '--sentence-transformer',metavar='MODEL',action='store',\
-    help='Use downloaded sentence transformer model.', default='')
-
-subparser_docs_chat.add_argument('-cem', '--cross-encoder',metavar='MODEL',action='store',\
-    help='Use downloaded cross encoder model.', default='')
 
 subparser_docs_chat.add_argument('-tk', '--top-k', metavar='TOP_K', action='store', type=int,\
     help='How many sentences you want to retrieve.', default= 0)

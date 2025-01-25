@@ -245,15 +245,13 @@ def _chat(parser_arg: argparse.Namespace):
         logging.error("Invalid LINE: %s", parser_arg.LINE)
         raise LocalAssistantException(f"Invalid LINE: {parser_arg.LINE}")
 
-    chat_ext.chat_with_limited_lines\
-        (parser_arg.text_generation, parser_arg.LINE, parser_arg.max_token)
+    chat_ext.chat_with_limited_lines(parser_arg.LINE, parser_arg.max_token)
 
 def _start(parser_arg: argparse.Namespace):
     """Start command function."""
 
-    chat_ext.chat_with_history(parser_arg.text_generation, parser_arg.user, parser_arg.max_token,\
-        parser_arg.memory_enable, parser_arg.sentence_transformer,\
-        parser_arg.top_k_memory, parser_arg.encode_at_start)
+    chat_ext.chat_with_history(parser_arg.user, parser_arg.max_token,
+        parser_arg.top_k_memory, parser_arg.retrieve_memory_only)
 
 def _docs(parser_arg: argparse.Namespace):
     """Docsqa command function."""
@@ -266,8 +264,7 @@ def _docs(parser_arg: argparse.Namespace):
             .upload_docs(parser_arg.PATH, parser_arg.copy, parser_arg.not_encode)
 
     else:
-        chat_ext.docs_question_answer(parser_arg.text_generation, parser_arg.max_token,\
-            parser_arg.sentence_transformer, parser_arg.cross_encoder, parser_arg.top_k,\
+        chat_ext.docs_question_answer(parser_arg.max_token, parser_arg.top_k,\
             parser_arg.allow_score, parser_arg.encode_at_start, parser_arg.show_retrieve)
 
 def _self_destruction(parser_arg: argparse.Namespace):

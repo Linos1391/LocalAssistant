@@ -2,7 +2,7 @@
 
 from .utils import UtilsExtension, ConfigManager, LocalAssistantException
 from .model_processor import ChatExtension, DownloadExtension,\
-    MemoryExtension, DocsQuestionAnswerExtension
+    RebelExtension, DocsQuestionAnswerExtension
 
 # check for PyTorch
 try:
@@ -16,10 +16,10 @@ __all__ = [
     'UtilsExtension',
     'ChatExtension',
     'DownloadExtension',
-    'MemoryExtension',
+    'RebelExtension',
     'DocsQuestionAnswerExtension',
     'ConfigManager',
     'LocalAssistantException',
 ]
 
-__version__ = '1.1.0'
+__version__ = '1.1.1rc1'

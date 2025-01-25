@@ -4,7 +4,8 @@ import logging
 import os
 import pathlib
 
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM,\
+    AutoModelForSeq2SeqLM, GenerationConfig
 from sentence_transformers import SentenceTransformer, CrossEncoder
 
 from ..utils import UtilsExtension, LocalAssistantException
@@ -40,6 +41,11 @@ class DownloadExtension:
                 return SentenceTransformer(huggingface_path, token=hf_token)
             if model == 'CrossEncoder':
                 return CrossEncoder(huggingface_path)
+            if model == 'Rebel':
+                rebel_model = AutoModelForSeq2SeqLM.from_pretrained(huggingface_path,\
+                    use_safetensors=True, device_map="auto")
+                _ = GenerationConfig.from_model_config(rebel_model.config) # To prevent warning.
+                return rebel_model
             return model.from_pretrained\
                 (huggingface_path, use_safetensors=True, device_map="auto", token=hf_token)
         except Exception as err:
@@ -167,3 +173,18 @@ class DownloadExtension:
                 downloaded_path: str = os.path.join\
                     (self.utils_ext.model_path, 'Cross_Encoder', model_name)
                 self._save_model(cross_encoder_model, downloaded_path)
+
+    def download_rebel(self):
+        """Download Rebel."""
+        huggingface_path: str = 'Babelscape/rebel-large'
+
+        tokenizer_model = self\
+            ._download_model(huggingface_path, AutoTokenizer)
+        mrebel_model = self._download_model\
+            (huggingface_path, 'Rebel')
+
+        # save downloaded model
+        downloaded_path: str = os.path.join\
+            (self.utils_ext.model_path, 'built-in', 'Rebel')
+        downloaded_path = self._save_model(mrebel_model, downloaded_path)
+        self._save_model(tokenizer_model, os.path.join(downloaded_path, 'Tokenizer'))

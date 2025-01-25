@@ -163,14 +163,11 @@ subparser_start.add_argument('-u', '--user', action='store',\
 subparser_start.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,\
     help='Max tokens to generate', default= 500)
 
-subparser_start.add_argument('-m', '--memory-enable', action='store_true',\
-    help='Enable memory function')
-
 subparser_start.add_argument('-tk', '--top-k-memory', metavar='TOP_K', action='store', type=int,\
-    help='How much memory you want to recall. (When memory enabled)', default= 0)
+    help='How much memory you want to recall.', default= 0)
 
-subparser_start.add_argument('--encode-at-start', action='store_true',\
-    help='Encode memory before chating. (When memory enabled)')
+subparser_start.add_argument('--retrieve-memory-only', action='store_true',\
+    help='Only retrieve and not saving the later memories.')
 
 # +----------------+
 # | locas docs ... |

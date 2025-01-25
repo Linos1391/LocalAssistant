@@ -6,9 +6,10 @@ import os
 import shutil
 import logging
 
+from transformers import BitsAndBytesConfig
+
 ###### - Add more model:
 # 1.n.n
-# - SENTENCE TRANSFORMATION \ CROSS_ENCODER (Extract data from database)
 # - Search google https://github.com/Nv7-GitHub/googlesearch
 # 2.n.n
 # - TEXT_TO_SPEECH (Voice from AI)
@@ -156,7 +157,7 @@ Give the user the best supports as you can."
 who serves the user called {user}. Give {user} the best supports as you can."
 
                 if chat_name in history_list: # throw error if create same name.
-                    logging.error("ERROR: Name %s is used.\n", chat_name)
+                    logging.error("ERROR: Name %s is used.", chat_name)
                     continue
 
                 return ([{"role": "system", "content": system_prompt}], chat_name)
@@ -173,14 +174,12 @@ who serves the user called {user}. Give {user} the best supports as you can."
                     continue
 
                 os.remove(os.path.join(self.user_path,user,'history',f'{chat_name}.json'))
-                print()
                 continue
 
             if command not in history_list:
                 logging.error('No history named %s', command)
                 continue
 
-            print('\n')
             temp_path: str = os.path.join\
                 (self.user_path, user, 'history', f'{command}.json')
             return ([v for v in self.read_json_file(temp_path)], command.split()[0])
@@ -212,7 +211,7 @@ class ConfigManager:
             self.data = {
                 "hf_token": "", # Hugging Face token.
                 "load_in_bits": "8", # 'quantization' method. (So the device won't blow up)
-                "top_k_memory": "5", # num of memory to use
+                "top_k_memory": "25", # num of memory that retrieve.
                 "models": { # the model that being use for chatting.
                     "Text_Generation": "",
                     "Sentence_Transformer": "",
@@ -319,3 +318,25 @@ Please type 'locas download -h' and download one.")
 
         self.upload_config_file()
         logging.info('Apply %s as model for %s.',self.data['models'][task], task)
+
+    def load_quantization(self) -> dict:
+        """
+        Load desire quantization bits.
+        
+        Returns:
+            dict: kwarg for models' `from_pretrain`.
+        """
+        kwarg = dict(local_files_only=True, use_safetensors=True, device_map="auto",)
+
+        used_bit = self.data["load_in_bits"]
+        match used_bit:
+            case '8':
+                kwarg.update({'quantization_config': BitsAndBytesConfig(load_in_8bit=True)})
+            case '4':
+                kwarg.update({'quantization_config': BitsAndBytesConfig(load_in_4bit=True)})
+            case 'None':
+                pass
+            case _:
+                logging.error('Invalid bits! We found: %s.', used_bit)
+                raise LocalAssistantException(f"Invalid bits! We found: {used_bit}.")
+        return kwarg

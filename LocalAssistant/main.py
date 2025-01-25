@@ -251,7 +251,7 @@ def _start(parser_arg: argparse.Namespace):
     """Start command function."""
 
     chat_ext.chat_with_history(parser_arg.user, parser_arg.max_token,
-        parser_arg.memory_enable, parser_arg.top_k_memory, parser_arg.encode_at_start)
+        parser_arg.top_k_memory, parser_arg.retrieve_memory_only)
 
 def _docs(parser_arg: argparse.Namespace):
     """Docsqa command function."""

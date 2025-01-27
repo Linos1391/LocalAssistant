@@ -263,6 +263,15 @@ def _docs(parser_arg: argparse.Namespace):
             (config.data['models']['Sentence_Transformer'],config.data['models']['Cross_Encoder'])\
             .upload_docs(parser_arg.PATH, parser_arg.copy, parser_arg.not_encode)
 
+    elif parser_arg.ACTION == 'extract':
+        config.check_for_exist_model(2)
+        config.check_for_exist_model(3)
+
+        query: str = input('What is the main question: ')
+        DocsQuestionAnswerExtension\
+            (config.data['models']['Sentence_Transformer'],config.data['models']['Cross_Encoder'])\
+            .relation_extraction(query, parser_arg.top_k,parser_arg.allow_score)
+
     else:
         chat_ext.docs_question_answer(parser_arg.max_token, parser_arg.top_k,\
             parser_arg.allow_score, parser_arg.encode_at_start, parser_arg.show_retrieve)

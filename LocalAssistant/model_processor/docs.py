@@ -12,6 +12,7 @@ import torch
 from sentence_transformers import SentenceTransformer, CrossEncoder, util
 
 from ..utils import ConfigManager, LocalAssistantException
+from .relation_extraction import RebelExtension
 
 class DocsQuestionAnswerExtension:
     """Extension used to process document."""
@@ -117,7 +118,8 @@ class DocsQuestionAnswerExtension:
         logging.debug("Get path from copied documents.")
         # get those copied.
         for item in os.scandir(self.utils_ext.docs_path):
-            if item.name in ('share_path.json', 'docs_data.json', 'encoded_docs_data.pt'):
+            if item.name in ('share_path.json', 'docs_data.json',
+                             'encoded_docs_data.pt','network.html'):
                 continue
             result += self._get_file(item.path)
         return tuple(result)
@@ -284,7 +286,7 @@ class DocsQuestionAnswerExtension:
         temp_path = os.path.join(self.utils_ext.docs_path, 'encoded_docs_data.pt')
         torch.save(encoded_data, temp_path)
 
-    def ask_query(self, question: str, top_k: int = 0, allow_score: float = 0.0) -> list[str]:
+    def ask_query(self, question: str, top_k: int = 0, allow_score: float = 0.0) -> list[dict]:
         """Ask query function."""
         self.config.get_config_file()
 
@@ -335,3 +337,14 @@ class DocsQuestionAnswerExtension:
             logging.debug("Retrieve '%s' from '%s'.", pointer["content"], pointer["title"])
 
         return result
+
+    def relation_extraction(self, query: str, top_k: int = 0, allow_score: float = 0.0):
+        """Relation extraction docs through query."""
+        rebel = RebelExtension()
+        relations: list = self.ask_query(query, top_k, allow_score)
+
+        for index, relation in enumerate(relations):
+            rebel.from_text_to_kb(relation["content"])
+            print(f'\rCurrent extraction: {index+1}/{len(relations)}.')
+
+        rebel.save_network_html(os.path.join(self.utils_ext.docs_path, 'network.html'))

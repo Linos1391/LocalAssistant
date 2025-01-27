@@ -1,6 +1,7 @@
 """Parser, define when goes `locas -h`."""
 
 import argparse
+from . import __version__
 
 PARSER = argparse.ArgumentParser(
     prog='locas',
@@ -12,7 +13,7 @@ PARSER.add_argument('-v', '--verbose', action='count', help='show debug \
 messages (Can be used multiple times for higher level: CRITICAL[v] -> DEBUG[vvvv])', default=0)
 
 # version.
-PARSER.add_argument('-V', '--version', action='version', version='LocalAssistant 1.1.1rc1')
+PARSER.add_argument('-V', '--version', action='version', version=f'LocalAssistant v{__version__}')
 
 subparser = PARSER.add_subparsers(
     title='commands',
@@ -43,7 +44,7 @@ Model\'s task. Choose from:
 subparser_download.add_argument('TASK', action='store', help=TEMP_STRING, default=0)
 del TEMP_STRING
 
-subparser_download.add_argument('-n', '--name', action='store',\
+subparser_download.add_argument('-n', '--name', action='store',
     help='Name of the model to be saved', default='Untitled')
 
 subparser_download.add_argument('-t', '--token', action='store', help='User Hugging \
@@ -95,7 +96,7 @@ del TEMP_STRING
 
 subparser_config_group = subparser_config.add_mutually_exclusive_group(required=True)
 
-subparser_config_group.add_argument('-m', '--modify', action='store_true',\
+subparser_config_group.add_argument('-m', '--modify', action='store_true',
     help='Modify config value')
 
 subparser_config_group.add_argument('-s', '--show', action='store_true', help='Show config data')
@@ -122,13 +123,13 @@ subparser_user.add_argument('TARGET', action='store', help='The target')
 
 subparser_user_group = subparser_user.add_mutually_exclusive_group()
 
-subparser_user_group.add_argument('-c', '--create', action='store_true',\
+subparser_user_group.add_argument('-c', '--create', action='store_true',
     help='Create user with TARGET name')
 
-subparser_user_group.add_argument('-d', '--delete', action='store_true',\
+subparser_user_group.add_argument('-d', '--delete', action='store_true',
     help='Delete user with TARGET name')
 
-subparser_user_group.add_argument('-r', '--rename', action='store', metavar='NAME',\
+subparser_user_group.add_argument('-r', '--rename', action='store', metavar='NAME',
     help='Rename TARGET with NAME')
 
 # +----------------+
@@ -144,7 +145,7 @@ Recommend for fast chat as non-user. (no history saved)',
 
 subparser_chat.add_argument('LINE', action='store', type=int, help='Number of line to chat with')
 
-subparser_chat.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,\
+subparser_chat.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,
     help='Max tokens to generate', default= 500)
 
 # +-----------------+
@@ -157,16 +158,16 @@ subparser_start = subparser.add_parser(
     description='Chat with models using history.',
 )
 
-subparser_start.add_argument('-u', '--user', action='store',\
+subparser_start.add_argument('-u', '--user', action='store',
     help='The user name', default='default')
 
-subparser_start.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,\
+subparser_start.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,
     help='Max tokens to generate', default= 500)
 
-subparser_start.add_argument('-tk', '--top-k-memory', metavar='TOP_K', action='store', type=int,\
+subparser_start.add_argument('-tk', '--top-k-memory', metavar='TOP_K', action='store', type=int,
     help='How much memory you want to recall.', default= 0)
 
-subparser_start.add_argument('--retrieve-memory-only', action='store_true',\
+subparser_start.add_argument('--retrieve-memory-only', action='store_true',
     help='Only retrieve and not saving the later memories.')
 
 # +----------------+
@@ -194,11 +195,23 @@ subparser_docs_upload = subparser_docs.add_parser(
 
 subparser_docs_upload.add_argument('PATH', action='store', help='Path to add.')
 
-subparser_docs_upload.add_argument('-c', '--copy', action='store_true',\
+subparser_docs_upload.add_argument('-c', '--copy', action='store_true',
     help='Copy provided folders/files to docs.')
 
-subparser_docs_upload.add_argument('--not-encode', action='store_true',\
+subparser_docs_upload.add_argument('--not-encode', action='store_true',
     help='Do not encode after upload. (if user want to upload multiple docs)')
+
+subparser_docs_extract = subparser_docs.add_parser(
+    name='extract',
+    help='Relation extraction docs through query.',
+    description='Relation extraction docs through query.'
+)
+
+subparser_docs_extract.add_argument('-tk', '--top-k', metavar='TOP_K', action='store', type=int,
+    help='How many sentences you want to retrieve.', default= 0)
+
+subparser_docs_extract.add_argument('-s', '--allow-score',metavar='SCORE',action='store',type=float,
+    help='Retrieving process will stop when similiarity score is lower.', default= 0.0)
 
 subparser_docs_chat = subparser_docs.add_parser(
     name='chat',
@@ -206,19 +219,19 @@ subparser_docs_chat = subparser_docs.add_parser(
     description='Ask queries from docs and get answer.'
 )
 
-subparser_docs_chat.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,\
+subparser_docs_chat.add_argument('-t', '--max-token', metavar='TOKEN', action='store', type=int,
     help='Max tokens to generate', default= 500)
 
-subparser_docs_chat.add_argument('-tk', '--top-k', metavar='TOP_K', action='store', type=int,\
+subparser_docs_chat.add_argument('-tk', '--top-k', metavar='TOP_K', action='store', type=int,
     help='How many sentences you want to retrieve.', default= 0)
 
-subparser_docs_chat.add_argument('-s', '--allow-score',metavar='SCORE',action='store',type=float,\
+subparser_docs_chat.add_argument('-s', '--allow-score',metavar='SCORE',action='store',type=float,
     help='Retrieving process will stop when similiarity score is lower.', default= 0.0)
 
-subparser_docs_chat.add_argument('--encode-at-start', action='store_true',\
+subparser_docs_chat.add_argument('--encode-at-start', action='store_true',
     help='Encode docs before chating.')
 
-subparser_docs_chat.add_argument('--show-retrieve', action='store_true',\
+subparser_docs_chat.add_argument('--show-retrieve', action='store_true',
     help='Show the retrieved data from docs.')
 
 # +----------------------------+
@@ -231,5 +244,5 @@ subparser_self_destruction = subparser.add_parser(
     description='LocalAssistant\'s self-destruction.',
 )
 
-subparser_self_destruction.add_argument('-a', '--all', action='store_true',\
+subparser_self_destruction.add_argument('-a', '--all', action='store_true',
     help='Delete the whole folder (included models, history, etc).')

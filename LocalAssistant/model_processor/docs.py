@@ -345,6 +345,6 @@ class DocsQuestionAnswerExtension:
 
         for index, relation in enumerate(relations):
             rebel.from_text_to_kb(relation["content"])
-            print(f'\rCurrent extraction: {index+1}/{len(relations)}.')
+            print(f'Current extraction: {index+1}/{len(relations)}.\r')
 
         rebel.save_network_html(os.path.join(self.utils_ext.docs_path, 'network.html'))

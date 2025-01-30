@@ -1,0 +1,39 @@
+site_name: LocalAssistant
+site_url: !ENV READTHEDOCS_CANONICAL_URL
+site_author: Linos1391
+site_description: LocalAssistant (locas) is an AI designed to be used in CLI. (Currently in development)
+copyright: Copyright &copy; 2024 - 2025 Linos1391
+
+repo_name: LocalAssistant
+repo_url: https://github.com/Linos1391/LocalAssistant
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Quick Start: quick_start.md
+  - Models: models.md
+  - Commands: commands.md
+
+extra_javascript:
+  - javascript/readthedocs.js
+
+theme:
+  name: material
+  logo: asset/icon.png
+  palette:
+    - scheme: slate
+      primary: blue grey
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to light mode
+    - scheme: default
+      primary: cyan
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Linos1391
+

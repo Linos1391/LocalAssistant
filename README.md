@@ -18,7 +18,7 @@
 [python-shield]: https://img.shields.io/badge/python-3.10+-yellow
 [python-url]: https://www.python.org/downloads/
 
-![icon](https://github.com/Linos1391/LocalAssistant/blob/main/asset/icon.png?raw=true)
+![icon](https://github.com/Linos1391/LocalAssistant/blob/main/docs/asset/icon.png?raw=true)
 
 **Your CLI friend.**
 
@@ -39,7 +39,7 @@ options:
   -V, --version       show program's version number and exit
 
 commands:
-  built-in commands (type 'locas COMMAND -h' for better description)
+  built-in commands (type 'locas COMMAND -h' for better description).
 
   COMMAND
     download          Download models from Hugging Face
@@ -47,12 +47,13 @@ commands:
     user              Config user.
     chat              Chat with models for limited lines. (no history saved)
     start             Chat with models using history.
+    docs              Ask information from provided documents.
     self-destruction  LocalAssistant's self-destruction.
 ```
 
 # Installing
 
-Download [locas_installer.py](https://github.com/Linos1391/LocalAssistant/releases/download/v1.1.0/locas_installer.py), and let magic happens.
+Download [locas_installer.py](https://github.com/Linos1391/LocalAssistant/releases/download/v1.1.1/locas_installer.py), and let magic happens.
 ```
 python3 locas_installer.py
 ```

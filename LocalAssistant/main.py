@@ -110,7 +110,7 @@ Choose from: '4', '8', 'None'.", _check_valid):
                     return False
 
                 if not _change_single(command,\
-                    "'top_k_memory' let us know how much memory you want to recall.", _check_valid):
+                    "'top_k_memory' lets us know how much memory you want to recall.", _check_valid):
                     break
                 continue
 
@@ -131,14 +131,18 @@ Choose from: '4', '8', 'None'.", _check_valid):
                     while True:
                         print('Choose from:')
 
-                        model: str = config.data['models'][command]
                         folder_model: list = []
-                        for item in os.scandir(os.path.join(utils_ext.model_path, model)):
+                        for item in os.scandir(os.path.join(utils_ext.model_path, command)):
                             if item.is_dir():
                                 folder_model.append(item.name)
                                 print(f'    - {item.name}')
 
-                        if not _change_single(model, ''):
+                        def _check_valid(command: str) -> bool:
+                            if command in folder_model:
+                                return True
+                            return False
+
+                        if not _change_single(command, '', _check_valid):
                             break
                         continue
 
@@ -162,7 +166,7 @@ Choose from: '4', '8', 'None'.", _check_valid):
                                 return True
                             return False
 
-                        if not _change_single(command,"'top_k' let us know how many \
+                        if not _change_single(command,"'top_k' lets us know how many \
 lines you want to retrieve. Maximum is 50 lines.", _check_valid):
                             break
                         continue
@@ -180,7 +184,7 @@ process stop when similiarity score is lower.", _check_valid):
 
             case 'users':
                 print("Type 'locas user -h' for better configuration.\n")
-                continue
+                break
 
 def _user(parser_arg: argparse.Namespace):
     """User command function."""

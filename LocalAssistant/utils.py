@@ -125,8 +125,8 @@ There will be no turning back. Continue? [y/(n)]: ")
                         print(f'    - {history.removesuffix('.json')}')
                         history_list.append(history.removesuffix('.json'))
             print("""
-Type 'create [name (Required, 1 WORD ONLY] [system_prompt (Optional)]' to create new history.
-Type 'delete [name (Required, 1 WORD ONLY]' to delete history.
+Type 'create [name (Required, 1 WORD ONLY)] [system_prompt (Optional)]' to create new history.
+Type 'delete [name (Required, 1 WORD ONLY)]' to delete history.
 Type 'exit' to exit.\n""")
             command: str = input('>> ')
 

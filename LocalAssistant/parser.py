@@ -54,6 +54,7 @@ Face\'s token (Some models might be restricted and need authenticated)', default
 # | locas config ... |
 # +------------------+
 
+#TODO - no TEMP_STRING
 TEMP_STRING: str = """\
 Configurate LocalAssistant.
  

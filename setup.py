@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name="LocalAssistant",
-    version="1.1.1rc1",
+    version="1.1.1",
     description="LocalAssistant (locas) is an AI designed to be used in CLI. \
 (Currently in development)",
     long_description=pathlib.Path('README.md').read_text(encoding="utf-8"),

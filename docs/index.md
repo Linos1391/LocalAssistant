@@ -1,10 +1,6 @@
-<div align="center">
-
-# LocalAssistant
+## LocalAssistant
 
 **Locas - your local assistant**
-
-</div>
 
 ```
 >> locas.cmd -h

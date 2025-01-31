@@ -51,70 +51,17 @@ commands:
     self-destruction  LocalAssistant's self-destruction.
 ```
 
-# Installing
+<br>
 
-Download [locas_installer.py](https://github.com/Linos1391/LocalAssistant/releases/download/v1.1.1/locas_installer.py), and let magic happens.
-```
-python3 locas_installer.py
-```
+# Brief Overview
 
-Let's try if it works:
-```
-locas.cmd -h
-```
+LocalAssistant is an AI that communicating through terminal. Even though currently in development, it is equipped with communication function, memory ability and document query. I made this for an even bigger project later, so until fully completed, it will not be dropped.
 
 <br>
 
-# Preparing
+# Documents
 
-To chat, we will need model! You can download other models you want. Below is my recommend for first use (Like a starter pack.)
-
-**For text generation:**
-*(Choose other models from [here](https://huggingface.co/models?pipeline_tag=text-generation&library=safetensors&sort=trending).)*
-```
-locas.cmd download -n qwen Qwen/Qwen2.5-1.5B-Instruct 1
-```
-
-**For sentence transformer:**
-*(Choose other models from [here](https://huggingface.co/sentence-transformers?sort_models=modified#models).)*
-```
-locas.cmd download -n minilm sentence-transformers/all-MiniLM-L6-v2 2
-```
-
-**For cross encoder:**
-*(Choose other models from [here](https://huggingface.co/cross-encoder?sort_models=modified#models).)*
-```
-locas.cmd download -n msmarco cross-encoder/ms-marco-MiniLM-L-6-v2 3
-```
-
-<br>
-
-# Running
-
-By default, `locas` works at most of the time:
-
-*(Unix user may try `locas.cmd ...` first. Window user can use both `locas` and `locas.cmd`)*
-```
-locas ...
-```
-
-Learn more about useful functions:
-```
-locas -h
-```
-
-To deactivate: *(It uses python's virtual environment)*
-```
-deactivate
-```
-
-<br>
-
-# Removing
-
-```
-locas self-destruction
-```
+To learn more, read docs at [here](https://localassistant.readthedocs.io/en/latest/).
 
 <br>
 

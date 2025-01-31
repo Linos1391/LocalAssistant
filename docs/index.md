@@ -1,14 +1,4 @@
-<div align="center">
-
-# LocalAssistant
-
-**Locas - your local assistant**
-
-![icon](https://github.com/Linos1391/LocalAssistant/blob/main/asset/icon.png?raw=true)
-
-**Your CLI friend.**
-
-</div>
+**LocalAssistant - Your CLI friend**
 
 ```
 >> locas.cmd -h

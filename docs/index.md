@@ -1,6 +1,4 @@
-## LocalAssistant
-
-**Locas - your local assistant**
+**LocalAssistant - Your CLI friend**
 
 ```
 >> locas.cmd -h

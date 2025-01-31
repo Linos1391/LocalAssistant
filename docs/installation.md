@@ -41,7 +41,7 @@ Select one [cpu]:
 
 **Notice:** MacOS will be skipped. *(Only cpu is supported)*
 
-What shown below is your device compute. Copy that compute name to the answer and you are done. Leave it empty for using cpu. Remember to choose the RIGHT compute, `Cuda 12.4` is not with `Cuda 12.6`'.
+What shown below is your device compute. Copy that compute name to the answer and you are done. Leave it empty for using cpu. Remember to choose the RIGHT compute, `Cuda 12.4` is not with `Cuda 12.6`.
 
 ### Question 3: Choose version
 

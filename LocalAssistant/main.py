@@ -110,7 +110,7 @@ Choose from: '4', '8', 'None'.", _check_valid):
                     return False
 
                 if not _change_single(command,\
-                    "'top_k_memory' lets us know how much memory you want to recall.", _check_valid):
+                    "'top_k_memory' lets us know how much memory you want to recall.",_check_valid):
                     break
                 continue
 

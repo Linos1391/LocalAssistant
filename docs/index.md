@@ -33,6 +33,15 @@ Learn more through these instructions below:
 - [Models](models.md)
 - [Commands](commands.md)
 
+## Contribution
+
+Below is what I tried but could not get it done. So your help will help me a lot!
+
+- **Call time:** I tested `locas` with Powershell's `Measure-Command`, I got 7-9s. But then when trying with `CProfile.run()`, it's approximately 0.2s... Why...?
+- **pytest:** I know this sounds wrong, but I don't even know where to start. Maybe I will try again, but not right now I guess.
+
+Not just those above. All contributions are welcomed, I would be grateful for one day having peer coders beside me!
+
 ## License
 
 [GNU GPLv3](https://github.com/Linos1391/LocalAssistant/blob/main/LICENSE)

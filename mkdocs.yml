@@ -2,6 +2,7 @@ site_name: LocalAssistant
 site_url: !ENV READTHEDOCS_CANONICAL_URL
 site_author: Linos1391
 site_description: LocalAssistant (locas) is an AI designed to be used in CLI. (Currently in development)
+
 copyright: Copyright &copy; 2024 - 2025 Linos1391
 
 repo_name: LocalAssistant
@@ -20,6 +21,7 @@ extra_javascript:
 theme:
   name: material
   logo: asset/icon.png
+  favicon: asset/icon.png
   palette:
     - scheme: slate
       primary: blue grey

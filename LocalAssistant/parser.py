@@ -54,46 +54,12 @@ Face\'s token (Some models might be restricted and need authenticated)', default
 # | locas config ... |
 # +------------------+
 
-#TODO - no TEMP_STRING
-TEMP_STRING: str = """\
-Configurate LocalAssistant.
- 
-----------------------------Example-----------------------------------
->> locas config -m
-
-"hf_token": "",
-"load_in_bits": "8",
-"top_k_memory": "5",
-"models": {
-    "Text_Generation": "",
-    "Sentence_Transformer": "",
-    "Cross_Encoder": "",
-},
-"documents": {
-    "top_k": "10",
-    "allow_score": "0.8",
-},
-"users": "default"
-
-Type KEY to modify KEY's VALUE. Type 'exit' to exit.
-
->> load_in_bits
-
-'load_in_bits' is for 'quantization' method. If the VALUE is 8, then model is load in 8 bits (1 bytes) per parameters. Choose from: '4', '8', 'None'.
-
-Modify VALUE of 'load_in_bits' to ... (Type 'exit' to exit.)
-
->> None
-----------------------------------------------------------------------
-
-"""
 subparser_config = subparser.add_parser(
     name='config',
     help='Configurate LocalAssistant.',
-    description=TEMP_STRING,
+    description='Configurate LocalAssistant.',
     formatter_class=argparse.RawTextHelpFormatter,
 )
-del TEMP_STRING
 
 subparser_config_group = subparser_config.add_mutually_exclusive_group(required=True)
 

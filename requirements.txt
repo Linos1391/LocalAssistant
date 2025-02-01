@@ -1,0 +1,6 @@
+transformers[torch]
+bitsandbytes
+sentence-transformers
+PyMuPDF
+sentencepiece
+pyvis

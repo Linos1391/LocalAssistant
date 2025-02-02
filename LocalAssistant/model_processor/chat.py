@@ -13,9 +13,9 @@ from .docs import DocsQuestionAnswerExtension
 
 class ChatExtension():
     """Chat extention for LocalAssistant."""
-    def __init__(self):
-        self.config = ConfigManager()
-        self.utils_ext = self.config.utils_ext
+    def __init__(self, config: ConfigManager):
+        self.config = config
+        self.utils_ext = config.utils_ext
 
     def _load_local_model(self, model_name: str) -> tuple:
         """
@@ -147,7 +147,7 @@ for text generation.\n\nType 'exit' to exit.", end='')
         while True:
             # If don't want to, end this loop
             print("\n\n------------------------------------")
-            if input(f"Finished {lines} lines. Want to keep chatting? [y/n]: ").lower() != 'y':
+            if input(f"Finished {lines} lines. Want to keep chatting? [y/(n)]: ").lower() != 'y':
                 print("------------------------------------")
                 break
             print("------------------------------------", end='')
@@ -199,7 +199,7 @@ for text generation.\n\nType 'exit' to exit.", end='')
         # load model.
         logging.debug('Begin to load models.')
         text_generation_model, tokenizer_model = self._load_local_model(text_generation_model_name)
-        memory_ext = RebelExtension()
+        memory_ext = RebelExtension(self.config)
         memory_ext.get_kb(os.path.join(self.utils_ext.user_path, user, 'memory', 'triplet.json'))
         logging.debug('Done loading models.')
 
@@ -370,7 +370,7 @@ If docs' data are nonsense, you can ignore them and use your own words."
         logging.debug('Begin to load models.')
         text_generation_model, tokenizer_model = self._load_local_model(text_generation_model_name)
         docs_ext = DocsQuestionAnswerExtension\
-                (sentence_transformer_model_name, cross_encoder_model_name)
+                (self.config, sentence_transformer_model_name, cross_encoder_model_name)
         if encode_at_start:
             print("Encoding at start. Please be patient, it may take some minutes.")
             docs_ext.encode()

@@ -1,9 +1,11 @@
 ## Installing
 
 Download [locas_installer.py](https://github.com/Linos1391/LocalAssistant/releases/download/v1.1.1/locas_installer.py), and let magic happens.
-```
-python3 locas_installer.py
-```
+
+|          Window          |             Unix           |
+| ------------------------ | ---------------------------|
+|python locas_installer.py | python3 locas_installer.py |
+
 Let's go through all questions!
 
 ### Question 1: Choose path

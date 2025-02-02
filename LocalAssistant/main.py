@@ -6,18 +6,16 @@ import os
 import shutil
 
 from .parser import PARSER
-from .utils import LocalAssistantException
+from .utils import LocalAssistantException, ConfigManager
 from .model_processor import DownloadExtension, ChatExtension, DocsQuestionAnswerExtension
 
-chat_ext = ChatExtension()
-utils_ext = chat_ext.utils_ext
-config = chat_ext.config
+config = ConfigManager()
+utils_ext = config.utils_ext
+chat_ext = ChatExtension(config)
 
 config.get_config_file()
 
 def _download(parser_arg: argparse.Namespace):
-    """download command function"""
-
     if parser_arg.TASK == 0:
         return
 
@@ -37,8 +35,6 @@ def _download(parser_arg: argparse.Namespace):
         (parser_arg.name, parser_arg.PATH, parser_arg.token, task)
 
 def _config(parser_arg: argparse.Namespace):
-    """Config command function"""
-
     def _change_single(name: str, name_help: str, condition = None) -> bool:
         """
         Fast VALUE changer.
@@ -187,8 +183,6 @@ process stop when similiarity score is lower.", _check_valid):
                 break
 
 def _user(parser_arg: argparse.Namespace):
-    """User command function."""
-
     exist = config.check_exist_user_physically(parser_arg.TARGET)
 
     # show user.
@@ -220,7 +214,7 @@ def _user(parser_arg: argparse.Namespace):
         shutil.rmtree(os.path.join(utils_ext.user_path, parser_arg.TARGET))
         logging.info('Deleted user %s.', parser_arg.TARGET)
 
-        # rename user.
+    # rename user.
     elif parser_arg.rename is not None:
         if not exist:
             logging.error("User '%s' is not existed.", parser_arg.TARGET)
@@ -243,8 +237,6 @@ def _user(parser_arg: argparse.Namespace):
         logging.info('Change user to %s.', parser_arg.TARGET)
 
 def _chat(parser_arg: argparse.Namespace):
-    """Chat command function."""
-
     if parser_arg.LINE < 1:
         logging.error("Invalid LINE: %s", parser_arg.LINE)
         raise LocalAssistantException(f"Invalid LINE: {parser_arg.LINE}")
@@ -252,19 +244,15 @@ def _chat(parser_arg: argparse.Namespace):
     chat_ext.chat_with_limited_lines(parser_arg.LINE, parser_arg.max_token)
 
 def _start(parser_arg: argparse.Namespace):
-    """Start command function."""
-
     chat_ext.chat_with_history(parser_arg.user, parser_arg.max_token,
         parser_arg.top_k_memory, parser_arg.retrieve_memory_only)
 
 def _docs(parser_arg: argparse.Namespace):
-    """Docsqa command function."""
-
     if parser_arg.ACTION == 'upload':
         config.check_for_exist_model(2)
         config.check_for_exist_model(3)
-        DocsQuestionAnswerExtension\
-            (config.data['models']['Sentence_Transformer'],config.data['models']['Cross_Encoder'])\
+        DocsQuestionAnswerExtension(config,\
+            config.data['models']['Sentence_Transformer'],config.data['models']['Cross_Encoder'])\
             .upload_docs(parser_arg.PATH, parser_arg.copy, parser_arg.not_encode)
 
     elif parser_arg.ACTION == 'extract':
@@ -272,8 +260,8 @@ def _docs(parser_arg: argparse.Namespace):
         config.check_for_exist_model(3)
 
         query: str = input('What is the main question: ')
-        DocsQuestionAnswerExtension\
-            (config.data['models']['Sentence_Transformer'],config.data['models']['Cross_Encoder'])\
+        DocsQuestionAnswerExtension(config,\
+            config.data['models']['Sentence_Transformer'],config.data['models']['Cross_Encoder'])\
             .relation_extraction(query, parser_arg.top_k,parser_arg.allow_score)
 
     else:
@@ -281,8 +269,6 @@ def _docs(parser_arg: argparse.Namespace):
             parser_arg.allow_score, parser_arg.encode_at_start, parser_arg.show_retrieve)
 
 def _self_destruction(parser_arg: argparse.Namespace):
-    """Self-destruction function."""
-
     utils_ext.self_destruction(parser_arg.all)
 
 def main():
@@ -292,21 +278,8 @@ def main():
     verbose = 4 if parser_arg.verbose > 4 else parser_arg.verbose # limit to 4
     logging.basicConfig(level=(5-verbose) * 10, format="%(asctime)s [%(levelname)s]: %(message)s")
 
-    match parser_arg.COMMAND:
-        case 'download':
-            _download(parser_arg)
-        case 'config':
-            _config(parser_arg)
-        case 'user':
-            _user(parser_arg)
-        case 'chat':
-            _chat(parser_arg)
-        case 'start':
-            _start(parser_arg)
-        case 'docs':
-            _docs(parser_arg)
-        case 'self-destruction':
-            _self_destruction(parser_arg)
+    if parser_arg.COMMAND:
+        globals()[f'_{parser_arg.COMMAND}'](parser_arg)
 
 if __name__ == '__main__':
     main()

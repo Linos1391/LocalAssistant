@@ -1,6 +1,7 @@
 """Parser, define when goes `locas -h`."""
 
 import argparse
+
 from . import __version__
 
 PARSER = argparse.ArgumentParser(

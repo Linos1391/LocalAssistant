@@ -16,9 +16,9 @@ from .relation_extraction import RebelExtension
 
 class DocsQuestionAnswerExtension:
     """Extension used to process document."""
-    def __init__(self, sentence_transformers_name: str, cross_encoder_name: str):
-        self.config = ConfigManager()
-        self.utils_ext = self.config.utils_ext
+    def __init__(self,config: ConfigManager,sentence_transformers_name:str,cross_encoder_name:str):
+        self.config = config
+        self.utils_ext = config.utils_ext
 
         try:
             temp_path: str = os.path.join\
@@ -340,7 +340,7 @@ class DocsQuestionAnswerExtension:
 
     def relation_extraction(self, query: str, top_k: int = 0, allow_score: float = 0.0):
         """Relation extraction docs through query."""
-        rebel = RebelExtension()
+        rebel = RebelExtension(self.config)
         relations: list = self.ask_query(query, top_k, allow_score)
 
         for index, relation in enumerate(relations):

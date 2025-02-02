@@ -187,6 +187,13 @@ who serves the user called {user}. Give {user} the best supports as you can."
 
 class ConfigManager:
     """Config of LocalAssistant"""
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(ConfigManager, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
     def __init__(self):
         self.utils_ext = UtilsExtension()
         self.data: dict = {}

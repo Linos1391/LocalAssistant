@@ -15,9 +15,9 @@ class RebelExtension:
     Source for learners like me and for me 10 years later: 
     https://medium.com/nlplanet/building-a-knowledge-base-from-texts-a-full-practical-example-8dbbffb912fa 
     """
-    def __init__(self):
-        self.config = ConfigManager()
-        self.utils_ext = self.config.utils_ext
+    def __init__(self, config: ConfigManager):
+        self.config = config
+        self.utils_ext = config.utils_ext
 
         self.entities, self.relations = [], []
 
